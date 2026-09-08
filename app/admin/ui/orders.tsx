@@ -1,4 +1,5 @@
 "use client";
+import { CustomerService } from "./customer-service";
 import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -139,6 +140,10 @@ export function OrdersTable({
 }
 export function OrderDetail({ order }: { order: Order }) {
   const [status, setStatus] = useState(order.status);
+  const [carrier, setCarrier] = useState(order.shipment?.carrier || "");
+  const [trackingNumber, setTrackingNumber] = useState(
+    order.shipment?.trackingNumber || "",
+  );
   const [note, setNote] = useState(order.internalNote);
   const { busy, error, save } = useSave();
   const allPriced = order.items.every((i) => i.unitPrice !== null);
@@ -251,6 +256,16 @@ export function OrderDetail({ order }: { order: Order }) {
               {order.customer.address || "Belirtilmedi"}
             </dd>
           </dl>
+          {order.billing && (
+            <>
+              <h2>Fatura Adresi</h2>
+              <p className="admin-pre">
+                {order.billing.name}
+                <br />
+                {order.billing.address}
+              </p>
+            </>
+          )}
           <form
             className="admin-form"
             onSubmit={(e) => {
@@ -259,7 +274,12 @@ export function OrderDetail({ order }: { order: Order }) {
                 "orders",
                 {
                   id: order.id,
-                  data: { status, internalNote: note, version: order.version },
+                  data: {
+                    status,
+                    internalNote: note,
+                    version: order.version,
+                    shipment: { carrier, trackingNumber },
+                  },
                 },
                 `/admin/siparisler/${order.id}`,
               );
@@ -279,6 +299,22 @@ export function OrderDetail({ order }: { order: Order }) {
               </select>
             </label>
             <label>
+              Kargo firması
+              <input
+                value={carrier}
+                onChange={(e) => setCarrier(e.target.value)}
+                maxLength={80}
+              />
+            </label>
+            <label>
+              Takip numarası
+              <input
+                value={trackingNumber}
+                onChange={(e) => setTrackingNumber(e.target.value)}
+                maxLength={100}
+              />
+            </label>
+            <label>
               İç not (müşteriye gösterilmez)
               <textarea
                 rows={5}
@@ -291,6 +327,7 @@ export function OrderDetail({ order }: { order: Order }) {
           </form>
         </aside>
       </div>
+      <CustomerService orderId={order.id} />
     </>
   );
 }

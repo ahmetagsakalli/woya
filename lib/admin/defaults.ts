@@ -112,7 +112,7 @@ export const initialContent: SiteContent = {
     { label: "Cam Tablo & Saat", href: "/koleksiyon", group: "Alışveriş" },
     { label: "Modern Tablolar", href: "/tablolar", group: "Alışveriş" },
     { label: "Sepet ve sipariş talebi", href: "/sepet", group: "Alışveriş" },
-    { label: "Sipariş Takip", href: "/iletisim", group: "Alışveriş" },
+    { label: "Sipariş Takip", href: "/profil/misafir", group: "Alışveriş" },
     { label: "Hakkımızda", href: "/hakkimizda", group: "Destek" },
     { label: "Sıkça sorulan sorular", href: "/sss", group: "Destek" },
     { label: "Teslimat ve kargo", href: "/iletisim", group: "Destek" },

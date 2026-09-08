@@ -121,6 +121,8 @@ function toOrder(r: OrderRow): Order {
     version: r.version,
     history: r.history,
     payment: r.payment,
+    billing: r.billing,
+    shipment: r.shipment,
   };
 }
 export async function getOrders(): Promise<Order[]> {

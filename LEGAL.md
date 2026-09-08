@@ -59,3 +59,15 @@ Iade surelerinde eski yonetmelik PDF'si yerine guncel Bakanlik aciklamasi esas a
 - [KVKK, basvuru hakki](https://www.kvkk.gov.tr/Icerik/2062/Basvuru-Hakki)
 - [KVKK, yurt disina aktarim](https://www.kvkk.gov.tr/Icerik/2053/Yurtdisina-Aktarim)
 - [KVKK, cerez uygulamalari rehberi (Temmuz 2025)](https://www.kvkk.gov.tr/Icerik/7353/Cerez-Uygulamalari-Hakkinda-Rehber)
+
+## Müşteri hesabı eklemesi
+
+`CUSTOMER_ACCOUNTS.md` ile gelen hesap, adres defteri, sunucuda kalıcı sepet,
+Resend hesap e-postaları, misafir erişim doğrulaması ve başvuru mesajları
+gizlilik/çerez envanterine teknik davranışlarıyla eklendi. Mevcut hukuki
+koşullar ve süreler değiştirilmedi. Resend'in fiili kullanımı öncesinde
+sağlayıcı sözleşmesi, veri aktarımı ve saklama/imha uygulaması teyit edilmeli.
+Hesap kapatma giriş erişimini kapatır; hukuken saklanması gereken kayıtları
+silmez. Operasyonel kapatma ve imha sürecini işletme tamamlamalıdır. Sipariş
+özeti ve fatura adresinin değişmez saklanması, siparişe özel sözleşme veya
+gerçek fatura belgesi üretildiği anlamına gelmez; yukarıdaki eksikler sürer.

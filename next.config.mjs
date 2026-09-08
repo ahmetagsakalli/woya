@@ -6,11 +6,27 @@ const nextConfig = {
   poweredByHeader: false,
   async headers() {
     const headers = [
+      ...(process.env.APP_URL?.startsWith("https:")
+        ? [{ key: "Strict-Transport-Security", value: "max-age=31536000" }]
+        : []),
       { key: "X-Content-Type-Options", value: "nosniff" },
       { key: "X-Frame-Options", value: "DENY" },
       { key: "Referrer-Policy", value: "strict-origin-when-cross-origin" },
     ];
     return [
+      ...["/profil/:path*", "/api/hesap/:path*"].map((source) => ({
+        source,
+        headers: [
+          { key: "Cache-Control", value: "private, no-store" },
+          { key: "Referrer-Policy", value: "no-referrer" },
+          { key: "X-Robots-Tag", value: "noindex, nofollow" },
+          {
+            key: "Content-Security-Policy",
+            value:
+              "frame-ancestors 'none'; object-src 'none'; base-uri 'self'; form-action 'self'",
+          },
+        ],
+      })),
       { source: "/:path*", headers },
       {
         source: "/odeme/:path*",

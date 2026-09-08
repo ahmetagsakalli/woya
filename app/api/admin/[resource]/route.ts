@@ -1,3 +1,4 @@
+import { orderTransitions } from "@/lib/customer/schema";
 import { randomUUID } from "node:crypto";
 import { revalidatePath, revalidateTag } from "next/cache";
 import { storefrontCacheTag } from "@/lib/admin/repository";
@@ -84,13 +85,32 @@ export async function POST(request: Request, context: Context) {
           throw new HttpError(409, "İçerik güncellenmiş. Sayfayı yenileyin.");
       } else if (resource === "orders") {
         const data = orderUpdateSchema.parse(body.data);
-        const [order] = await tx`SELECT payment FROM woya_orders WHERE id=${z.uuid().parse(id)} FOR UPDATE`;
-        if (order?.payment && ["onaylandi", "hazirlaniyor", "kargoda", "tamamlandi"].includes(data.status) &&
-            (order.payment.state !== "paid" || order.payment.testMode))
-          throw new HttpError(409, "Doğrulanmış gerçek ödeme olmadan sipariş işleme alınamaz.");
+        const [order] =
+          await tx`SELECT payment,status,shipment FROM woya_orders WHERE id=${z.uuid().parse(id)} FOR UPDATE`;
+        if (
+          order?.payment &&
+          ["onaylandi", "hazirlaniyor", "kargoda", "tamamlandi"].includes(
+            data.status,
+          ) &&
+          (order.payment.state !== "paid" || order.payment.testMode)
+        )
+          throw new HttpError(
+            409,
+            "Doğrulanmış gerçek ödeme olmadan sipariş işleme alınamaz.",
+          );
+        if (
+          order &&
+          data.status !== order.status &&
+          !orderTransitions[order.status]?.includes(data.status)
+        )
+          throw new HttpError(
+            409,
+            "Bu sipariş durum geçişine izin verilmiyor.",
+          );
+        const shipment = data.shipment ?? order?.shipment ?? null;
         const rows =
-          await tx`UPDATE woya_orders SET status=${data.status},internal_note=${data.internalNote},version=version+1,
-          history=history || ${tx.json([{ status: data.status, at: new Date().toISOString() }])}::jsonb
+          await tx`UPDATE woya_orders SET status=${data.status},internal_note=${data.internalNote},shipment=${shipment ? tx.json(shipment) : null},version=version+1,
+          history=history || ${tx.json([{ status: data.status, at: new Date().toISOString() }, ...(data.shipment && JSON.stringify(data.shipment) !== JSON.stringify(order?.shipment) ? [{ status: "Kargo takip bilgileri güncellendi", at: new Date().toISOString() }] : [])])}::jsonb
           WHERE id=${z.uuid().parse(id)} AND version=${data.version} RETURNING id`;
         if (!rows.length)
           throw new HttpError(

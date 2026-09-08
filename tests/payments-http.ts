@@ -49,6 +49,7 @@ async function main() {
       "001-admin.sql",
       "002-admin-security.sql",
       "003-paytr.sql",
+      "004-customer-accounts.sql",
     ])
       await pg.exec(await readFile(`db/${file}`, "utf8"));
     await pg.exec(await readFile("db/003-paytr.sql", "utf8"));

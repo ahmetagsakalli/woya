@@ -6420,3 +6420,27 @@ img {
     grid-row: 1;
   }
 }
+
+
+.cart-sync-error {
+  position: fixed;
+  bottom: 16px;
+  left: 16px;
+  right: 16px;
+  max-width: 680px;
+  margin: auto;
+  z-index: 1000;
+  padding: 16px;
+  background: #fff;
+  border: 1px solid #8c241c;
+  color: #72251f;
+  box-shadow: 0 4px 20px #0002;
+  font-size: 14px;
+  line-height: 1.6;
+}
+.cart-sync-error button {
+  margin-left: 8px;
+  text-decoration: underline;
+  cursor: pointer;
+  min-height: 44px;
+}

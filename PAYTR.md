@@ -115,8 +115,8 @@ cikarilir; sonradan eklenen diger urunler korunur. Testte sepet temizlenmez.
   PayTR paneli/destegi ile islem netlestirilmelidir. Bu surumde otomatik durum
   sorgulama/mutabakat servisi yoktur. Kaydi DB'den gelisiguzel silmeyin.
 - Basarisiz token cevabinin teknik metni musterilere/loglara yazilmaz.
-- Siparisi admin'den iptal etmek **para iadesi degildir**. Bu surumde iade,
-  kismi iade, SMS/e-posta ve taksit entegrasyonu yoktur. Iadeyi PayTR panelinde
+- Siparisi admin'den iptal etmek **para iadesi degildir**. Bu surumde otomatik iade,
+  kismi iade, SMS, odeme bildirimi e-postasi ve taksit entegrasyonu yoktur. Iadeyi PayTR panelinde
   tamamlayip ic nota islem referansini yazin. Iptalden sonra gec gelen basarili
   odeme kaydedilir ama siparis otomatik yeniden acilmaz.
 - `PAYTR_ENABLED=false` yeni odemeyi kapatir; baslamis odemelerin bildirimleri
@@ -142,3 +142,14 @@ Bu testler gercek PayTR kabul testinin ve cihaz testinin yerine gecmez.
 
 Protokol kaynaklari: [PayTR iFrame 1. adim](https://dev.paytr.com/iframe-api/iframe-api-1-adim)
 ve [PayTR bildirim 2. adim](https://dev.paytr.com/iframe-api/iframe-api-2-adim).
+
+## Müşteri hesabı bağlantısı
+
+Hesaplar, kalıcı sepet, farklı fatura adresi ve satış sonrası başvurular için
+`CUSTOMER_ACCOUNTS.md` ve eklemeli `db/004-customer-accounts.sql` geçerlidir.
+`admin:setup` 004'ü de uygular; onaylı mevcut DB için ayrı `customer:migrate`
+scripti vardır. Müşteri e-postaları doğrulama/sıfırlama/erişim içindir; ödeme
+ve sevkiyat e-postası otomasyonu eklenmedi. Başvuru onayı para iadesi değildir.
+Doğrulanmış gerçek callback hesaba bağlı sepeti bir kez günceller; test
+callback'i hesap sepetini tüketmez. Sipariş fiyat ve adres snapshot alanları
+veritabanı trigger'ıyla korunur. PayTR canlı/test ayarları değişmedi.

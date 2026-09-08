@@ -45,6 +45,7 @@ async function main() {
     await pg.exec(await readFile("db/001-admin.sql", "utf8"));
     await pg.exec(await readFile("db/002-admin-security.sql", "utf8"));
     await pg.exec(await readFile("db/003-paytr.sql", "utf8"));
+    await pg.exec(await readFile("db/004-customer-accounts.sql", "utf8"));
     for (const c of initialCategories)
       await pg.query("INSERT INTO woya_categories(id,data) VALUES($1,$2)", [
         c.id,

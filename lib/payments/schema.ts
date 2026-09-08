@@ -1,5 +1,6 @@
 import { z } from "zod";
 import { configurationSchema } from "../pricing";
+import { billingSchema } from "../customer/schema";
 
 export const checkoutItemsSchema = z
   .array(
@@ -41,6 +42,8 @@ export const checkoutSchema = z
     quoteHash: z.string().regex(/^[a-f0-9]{64}$/),
     items: checkoutItemsSchema,
     customer: customerSchema,
+    billing: billingSchema.optional(),
+    accountId: z.uuid().nullable().optional(),
     note: z.string().trim().max(1000),
     consent: z.literal(true),
   })

@@ -6,6 +6,8 @@ import { useRouter } from "next/navigation";
 import { ArrowLeft, CreditCard, LoaderCircle } from "lucide-react";
 import { useCart } from "../components/cart-provider";
 import type { CheckoutQuote } from "@/lib/payments/schema";
+import type { AccountData } from "@/lib/customer/types";
+import { billingSchema } from "@/lib/customer/schema";
 import { customerSchema } from "@/lib/payments/schema";
 import styles from "./payment.module.css";
 
@@ -20,7 +22,32 @@ type Summary = {
   information: string;
 };
 
-export function CheckoutForm({ enabled }: { enabled: boolean }) {
+export function CheckoutForm({
+  enabled,
+  account,
+}: {
+  enabled: boolean;
+  account: AccountData;
+}) {
+  const formRef = useRef<HTMLFormElement>(null);
+  const delivery = account.addresses.find((a) => a.deliveryDefault);
+  const billing = account.addresses.find((a) => a.billingDefault);
+  const [differentBilling, setDifferentBilling] = useState(
+    Boolean(billing && billing.id !== delivery?.id),
+  );
+  function fillAddress(id: string, isBilling = false) {
+    const address = account.addresses.find((a) => a.id === id);
+    const form = formRef.current;
+    if (!address || !form) return;
+    for (const key of (isBilling
+      ? ["name", "address"]
+      : ["name", "phone", "address"]) as ("name" | "phone" | "address")[]) {
+      const el = form.elements.namedItem(
+        isBilling ? `billing_${key}` : key,
+      ) as HTMLInputElement | null;
+      if (el) el.value = address[key];
+    }
+  }
   const { items, ready } = useCart();
   const router = useRouter();
   const [snapshot, setSnapshot] = useState<{
@@ -95,6 +122,7 @@ export function CheckoutForm({ enabled }: { enabled: boolean }) {
       )}
       <div className={styles.layout}>
         <form
+          ref={formRef}
           className={styles.form}
           onSubmit={async (event) => {
             event.preventDefault();
@@ -112,6 +140,18 @@ export function CheckoutForm({ enabled }: { enabled: boolean }) {
               setError(customer.error.issues.map((i) => i.message).join(" "));
               return;
             }
+            const billingInput = billingSchema.safeParse(
+              differentBilling
+                ? {
+                    name: data.get("billing_name"),
+                    address: data.get("billing_address"),
+                  }
+                : { name: customer.data.name, address: customer.data.address },
+            );
+            if (!billingInput.success) {
+              setError("Fatura adını ve açık adresini kontrol edin.");
+              return;
+            }
             inFlight.current = true;
             setBusy(true);
             setError("");
@@ -124,6 +164,8 @@ export function CheckoutForm({ enabled }: { enabled: boolean }) {
                   quoteHash: summary.quote.hash,
                   items: JSON.parse(selection),
                   customer: customer.data,
+                  billing: billingInput.data,
+                  accountId: account.customer?.id ?? null,
                   note: data.get("note"),
                   consent: data.get("consent") === "on",
                 }),
@@ -145,10 +187,38 @@ export function CheckoutForm({ enabled }: { enabled: boolean }) {
           }}
         >
           <h2>Teslimat bilgileri</h2>
+          {!account.customer && (
+            <p>
+              Üye olmadan devam edebilirsiniz. Kayıtlı adresleriniz için{" "}
+              <Link href="/profil">giriş yapın</Link>.
+            </p>
+          )}
+          {account.addresses.length > 0 && (
+            <label>
+              Kayıtlı teslimat adresi
+              <select
+                defaultValue={delivery?.id || ""}
+                onChange={(e) => fillAddress(e.target.value)}
+              >
+                <option value="">Adres seçin</option>
+                {account.addresses.map((a) => (
+                  <option key={a.id} value={a.id}>
+                    {a.label}
+                  </option>
+                ))}
+              </select>
+            </label>
+          )}
           <fieldset disabled={busy}>
             <label>
               Ad soyad
               <input
+                defaultValue={
+                  delivery?.name ||
+                  (account.customer
+                    ? `${account.customer.firstName} ${account.customer.lastName}`
+                    : "")
+                }
                 name="name"
                 autoComplete="name"
                 required
@@ -160,6 +230,7 @@ export function CheckoutForm({ enabled }: { enabled: boolean }) {
               <label>
                 E-posta
                 <input
+                  defaultValue={account.customer?.email}
                   name="email"
                   type="email"
                   autoComplete="email"
@@ -170,6 +241,7 @@ export function CheckoutForm({ enabled }: { enabled: boolean }) {
               <label>
                 Telefon
                 <input
+                  defaultValue={delivery?.phone || account.customer?.phone}
                   name="phone"
                   type="tel"
                   autoComplete="tel"
@@ -182,6 +254,7 @@ export function CheckoutForm({ enabled }: { enabled: boolean }) {
             <label>
               Açık adres
               <textarea
+                defaultValue={delivery?.address}
                 name="address"
                 autoComplete="street-address"
                 required
@@ -191,6 +264,58 @@ export function CheckoutForm({ enabled }: { enabled: boolean }) {
                 placeholder="İl, ilçe, mahalle, cadde ve kapı numarası"
               />
             </label>
+            <label className={styles.consent}>
+              <input
+                type="checkbox"
+                checked={differentBilling}
+                onChange={(e) => setDifferentBilling(e.target.checked)}
+              />
+              <span>Fatura adresim farklı</span>
+            </label>
+            {differentBilling && (
+              <>
+                <h2>Fatura bilgileri</h2>
+                {account.addresses.length > 0 && (
+                  <label>
+                    Kayıtlı fatura adresi
+                    <select
+                      defaultValue={billing?.id || ""}
+                      onChange={(e) => fillAddress(e.target.value, true)}
+                    >
+                      <option value="">Adres seçin</option>
+                      {account.addresses.map((a) => (
+                        <option key={a.id} value={a.id}>
+                          {a.label}
+                        </option>
+                      ))}
+                    </select>
+                  </label>
+                )}
+                <label>
+                  Fatura ad soyad
+                  <input
+                    name="billing_name"
+                    autoComplete="billing name"
+                    defaultValue={billing?.name}
+                    minLength={3}
+                    maxLength={60}
+                    required
+                  />
+                </label>
+                <label>
+                  Fatura açık adresi
+                  <textarea
+                    name="billing_address"
+                    autoComplete="billing street-address"
+                    defaultValue={billing?.address}
+                    minLength={15}
+                    maxLength={400}
+                    rows={4}
+                    required
+                  />
+                </label>
+              </>
+            )}
             <label>
               Sipariş notu (isteğe bağlı)
               <textarea name="note" maxLength={1000} rows={2} />

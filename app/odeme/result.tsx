@@ -208,6 +208,11 @@ export function PaymentView({
               Durumu yeniden kontrol et
             </button>
           )}
+          {result && (
+            <Link className="product-detail-secondary" href="/profil/misafir">
+              Sipariş takibi ve destek
+            </Link>
+          )}
           <Link
             className="product-detail-secondary"
             href={paid ? "/urunler" : unsuccessful ? "/sepet" : "/iletisim"}

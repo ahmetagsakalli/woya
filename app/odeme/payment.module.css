@@ -273,3 +273,14 @@
     animation: none;
   }
 }
+
+.form select {
+  width: 100%;
+  min-width: 0;
+  padding: 12px;
+  border: 1px solid #c9c6c0;
+  background: #fff;
+  color: #171717;
+  font: inherit;
+  min-height: 44px;
+}

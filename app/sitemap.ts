@@ -11,7 +11,6 @@ const staticPages = [
   "/hakkimizda",
   "/iletisim",
   "/sepet",
-  "/profil",
   "/sss",
 ];
 

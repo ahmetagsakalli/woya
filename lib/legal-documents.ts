@@ -154,7 +154,8 @@ export const legalDocuments: Record<LegalSlug, LegalDocument> = {
         title: "Hangi bilgiler kullanılır?",
         paragraphs: [
           "Sipariş formuna girdiğiniz ad ve soyad, e-posta, telefon, teslimat adresi ve sipariş notu; seçilen ürünler, adetler, ölçüler ve tasarım seçenekleri sipariş kaydına dahil edilir. Ödeme sürecinde işlem referansı, tutar, işlem sonucu ve onay zamanı gibi kayıtlar tutulur.",
-          "Bağlantı ve güvenlik işlemlerinde IP bilgisi, istek ve hata kayıtları ile rastgele oturum tanımlayıcıları işlenebilir. Sepet seçiminiz tarayıcınızda saklanır. Bize e-posta, telefon veya WhatsApp üzerinden ulaşırsanız ilettiğiniz mesaj ve iletişim bilgileriniz de talebinizin ele alınması için kullanılır.",
+          "Bağlantı ve güvenlik işlemlerinde IP bilgisi, istek ve hata kayıtları ile rastgele oturum tanımlayıcıları işlenebilir. Misafir sepet seçiminiz tarayıcınızda, giriş yaptıktan sonraki hesap sepetiniz sunucuda saklanır. Bize e-posta, telefon veya WhatsApp üzerinden ulaşırsanız ilettiğiniz mesaj ve iletişim bilgileriniz de talebinizin ele alınması için kullanılır.",
+          "İsteğe bağlı müşteri hesabında ad, soyad, e-posta, telefon, kayıtlı adresler ve güvenli şifre özeti tutulur. Şifre düz metin saklanmaz. E-posta doğrulama ve şifre sıfırlama için süreli bağlantılar kullanılır. Siparişe bağlı destek, iptal/iade başvuruları ve mesajları başvurunun yönetimi için kaydedilir. Hesap açmak satın almanın zorunlu koşulu değildir.",
           "WOYA ödeme formu kart numarası, son kullanma tarihi veya CVV toplamaz. PayTR ödeme ekranı kullanıldığında bu bilgiler doğrudan ödeme kuruluşuna girilir. Destek mesajlarına kart bilgisi, banka şifresi veya gereksiz özel nitelikli kişisel veri eklemeyin.",
         ],
       },
@@ -172,6 +173,7 @@ export const legalDocuments: Record<LegalSlug, LegalDocument> = {
         title: "Hizmet sağlayıcılar ve veri aktarımı",
         paragraphs: [
           "Ödeme başlatıldığında ad, iletişim ve teslimat bilgileri, sepet dökümü, tutar ve IP bilgisi PayTR ile ödeme işleminin yürütülmesi ve güvenliği amacıyla paylaşılır. Teslimat için gerekli alıcı, adres ve telefon bilgileri gönderiyi taşıyan kargo işletmesine iletilir. Yetkili kamu kurumlarına yalnızca hukuki yükümlülük kapsamında bilgi verilir.",
+          "Hesap e-postası hizmeti yapılandırıldığında e-posta adresiniz ve güvenlik bağlantısını içeren mesaj Resend gönderim hizmetine iletilir. Hizmet sağlayıcının sözleşme, barındırma ve veri aktarım koşulları işletme tarafından ayrıca değerlendirilir.",
           "Barındırma ve veritabanı hizmetleri, sipariş kayıtları ve sitenin sunulması için teknik altyapı sağlar. Hizmetin konumu veya yurt dışından erişim biçimi yurt dışına veri aktarımı doğurabilir; böyle bir aktarımda KVKK madde 9 şartlarının ayrıca sağlanması gerekir. Bu metni görüntülemek yurt dışı aktarım için açık rıza vermek değildir.",
           "Sayfalardaki Google Haritalar içeriği yüklendiğinde tarayıcı Google sunucularına bağlanır. WhatsApp ve Instagram bağlantıları ise sizi ilgili sağlayıcının hizmetine götürür. Bu hizmetlerin kendi veri işleme koşulları ayrıca geçerlidir.",
         ],
@@ -181,7 +183,8 @@ export const legalDocuments: Record<LegalSlug, LegalDocument> = {
         title: "Saklama ve güvenlik",
         paragraphs: [
           "Sipariş ve ödeme kayıtları, işlem ve uyuşmazlıkların takibi ile uygulanabilir yasal saklama yükümlülükleri için tutulur. Farklı veri türlerinin saklama gereksinimleri aynı değildir; tarayıcı verilerini silmek sunucudaki sipariş kaydını silmez. Silme talepleri, devam eden hukuki saklama zorunlulukları dikkate alınarak değerlendirilir.",
-          "Yönetim paneli yetkilendirme ile korunur; oturum çerezlerine tarayıcı betiklerinin erişimi kapalıdır. Ödeme sonucu sunucuda doğrulanır ve gizli ödeme anahtarları tarayıcıya gönderilmez. İnternet üzerinden hiçbir aktarım için mutlak güvenlik garantisi verilemez.",
+          "Hesap kapatma talebi açık müşteri oturumlarını ve giriş erişimini kapatır. Sipariş, ödeme ve başvuru kayıtları saklama yükümlülükleri incelenmeden otomatik silinmez; kapatma talebi bu inceleme sürecine alınır.",
+          "Müşteri hesabı ve yönetim paneli ayrı yetkilendirme ile korunur; oturum çerezlerine tarayıcı betiklerinin erişimi kapalıdır. Ödeme sonucu sunucuda doğrulanır ve gizli ödeme anahtarları tarayıcıya gönderilmez. İnternet üzerinden hiçbir aktarım için mutlak güvenlik garantisi verilemez.",
         ],
       },
       {
@@ -216,6 +219,9 @@ export const legalDocuments: Record<LegalSlug, LegalDocument> = {
           "woya-cart-v1 · Yerel depolama. Ürünleri, adetleri ve tasarım/ölçü seçimlerini saklar. Sabit bir son kullanma süresi yoktur; sepet işlemleriyle güncellenir veya tarayıcıdaki site verileri silindiğinde kaldırılır.",
           "woya-purchased:<sipariş referansı> · Yerel depolama. Tamamlanan ödemenin sepetten iki kez düşülmesini önleyen işaret kaydıdır. Sabit süreyle kendiliğinden silinmez; site verileri temizlendiğinde kaldırılır.",
           "woya-checkout · Birinci taraf çerezi. Ödeme ekranı ve işlem sonucuna ilgili tarayıcının erişimini doğrular. Süresi 7 gündür; rastgele bir tanımlayıcı içerir. HttpOnly ve SameSite=Lax niteliklerini, HTTPS bağlantıda Secure niteliğini kullanır.",
+          "woya-customer · Birinci taraf müşteri oturum çerezi; 7 gün geçerlidir. HttpOnly, SameSite=Lax ve HTTPS üzerinde Secure kullanır. Çıkışta silinir; sunucuda oturum sonlandırılabilir. Hesap sepeti giriş sonrasında sunucuda saklanır.",
+          "woya-guest-order · E-postayla doğrulanmış misafir sipariş erişimi için birinci taraf HttpOnly çerez; 2 saat geçerlidir ve tek siparişle sınırlıdır. Giriş/çıkış sırasında temizlenir.",
+          "woya-cart-merge-v1 ve woya-auth-change · Yerel depolama. Sepetin tekrar birleşmesini önleyen işlem anahtarı ve sekmeler arasında hesap değişimini bildiren rastgele işaret; şifre veya müşteri profil bilgisi içermez. Birleşim anahtarı başarılı birleşimde kaldırılır; hesap değişimi işareti sonraki değişimde yenilenir veya site verileriyle temizlenir.",
           "woya-admin-session · Birinci taraf çerezi. Yönetici kimlik doğrulaması içindir; süresi 8 saattir. HttpOnly ve SameSite=Strict niteliklerini, üretim ortamında Secure niteliğini kullanır. Çıkışta temizlenir; şifre değişikliği sunucudaki oturum yetkisini geçersiz kılar.",
         ],
       },

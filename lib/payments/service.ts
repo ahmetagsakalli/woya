@@ -1,4 +1,7 @@
 import "server-only";
+import { customerSession, lockCustomer } from "../customer/auth";
+import { subtractPurchase } from "./cart";
+import type { AccountCartItem } from "../customer/schema";
 import { randomUUID } from "node:crypto";
 import { z } from "zod";
 import { db } from "../admin/db";
@@ -16,6 +19,9 @@ import type {
 const paymentUrl = (oid: string) => `/odeme/islem/${oid}`;
 export async function startPayment(input: CheckoutInput, request: Request) {
   const config = paymentConfig();
+  const account = await customerSession();
+  if (input.accountId && input.accountId !== account?.customer.id)
+    throw new HttpError(401, "Oturumunuz değişti. Yeniden giriş yapın.");
   const owner = await checkoutOwner();
   const ip = customerIp(request, config.testMode);
   await rateLimit(`paytr:start:${digest(ip)}`, 30, 3600);
@@ -30,6 +36,7 @@ export async function startPayment(input: CheckoutInput, request: Request) {
   const attempt = await sql.begin(async (tx) => {
     // Serialize even different idempotency keys for one browser's unresolved payment.
     await tx`SELECT pg_advisory_xact_lock(hashtextextended(${owner},0))`;
+    if (account) await lockCustomer(tx, account);
     const [previous] =
       await tx`SELECT * FROM woya_payments WHERE request_id=${input.requestId}`;
     if (previous) {
@@ -62,9 +69,9 @@ export async function startPayment(input: CheckoutInput, request: Request) {
       shipping: quote.shipping,
       testMode: config.testMode,
     };
-    await tx`INSERT INTO woya_orders(id,request_id,reference,customer,items,note,payment,history)
+    await tx`INSERT INTO woya_orders(id,request_id,reference,customer,items,note,payment,history,customer_id,billing)
       VALUES(${id},${input.requestId},${oid},${tx.json(input.customer)},${tx.json(quote.items)},${input.note},${tx.json(summary)},
-      ${tx.json([{ status: "Ödeme bekleniyor", at: new Date().toISOString() }])})`;
+      ${tx.json([{ status: "Ödeme bekleniyor", at: new Date().toISOString() }])},${account?.customer.id ?? null},${tx.json(input.billing ?? { name: input.customer.name, address: input.customer.address })})`;
     await tx`INSERT INTO woya_payments(merchant_oid,order_id,request_id,owner_hash,input_hash,amount,test_mode,state,consent_version)
       VALUES(${oid},${id},${input.requestId},${owner},${inputHash},${quote.total},${config.testMode},'creating',${config.legalVersion || "test-only"})`;
     return { fresh: true as const, oid, quote };
@@ -154,9 +161,10 @@ const oidSchema = z.string().regex(/^[A-Za-z0-9]{1,64}$/);
 export async function readPayment(oid: string) {
   oidSchema.parse(oid);
   const owner = await checkoutOwner();
+  const account = await customerSession();
   const [row] =
     await db()`SELECT p.state,p.iframe_token,p.expires_at,o.reference,o.payment,o.items,o.customer
-    FROM woya_payments p JOIN woya_orders o ON o.id=p.order_id WHERE p.merchant_oid=${oid} AND p.owner_hash=${owner}`;
+    FROM woya_payments p JOIN woya_orders o ON o.id=p.order_id WHERE p.merchant_oid=${oid} AND p.owner_hash=${owner} AND (o.customer_id IS NULL OR o.customer_id=${account?.customer.id ?? null})`;
   if (!row) throw new HttpError(404, "Ödeme kaydı bulunamadı.");
   return {
     reference: String(row.reference),
@@ -186,6 +194,10 @@ export async function handleCallback(raw: unknown) {
     throw new HttpError(403, "Invalid signature");
   // Callback processing remains enabled when the checkout kill switch is off.
   await db().begin(async (tx) => {
+    const [owner] =
+      await tx`SELECT o.customer_id FROM woya_orders o JOIN woya_payments p ON p.order_id=o.id WHERE p.merchant_oid=${fields.merchant_oid}`;
+    if (owner?.customer_id)
+      await tx`SELECT id FROM woya_customers WHERE id=${owner.customer_id} FOR UPDATE`;
     const [row] =
       await tx`SELECT * FROM woya_payments WHERE merchant_oid=${fields.merchant_oid} FOR UPDATE`;
     if (!row) throw new HttpError(404, "Unknown payment");
@@ -211,7 +223,7 @@ export async function handleCallback(raw: unknown) {
       fields.status === "failed" ? "failed" : matches ? "paid" : "review";
     const paidAt = state === "paid" ? new Date().toISOString() : undefined;
     const [order] =
-      await tx`SELECT status FROM woya_orders WHERE id=${row.order_id} FOR UPDATE`;
+      await tx`SELECT status,customer_id,items FROM woya_orders WHERE id=${row.order_id} FOR UPDATE`;
     const fulfill = state === "paid" && !testMode && order.status !== "iptal";
     const status = fulfill
       ? "onaylandi"
@@ -227,6 +239,12 @@ export async function handleCallback(raw: unknown) {
     await tx`UPDATE woya_payments SET state=${state},test_mode=${testMode},received_amount=${receivedAmount},callback_hash=${fields.hash},iframe_token=NULL WHERE merchant_oid=${fields.merchant_oid}`;
     await tx`UPDATE woya_orders SET payment=payment || ${tx.json(summary)}::jsonb,status=${status},version=version+1,
       history=history || ${tx.json([{ status: `PayTR: ${testMode ? "test / " : ""}${state}`, at: new Date().toISOString() }])}::jsonb WHERE id=${row.order_id}`;
+    if (state === "paid" && !testMode && order.customer_id) {
+      const [cart] =
+        await tx`SELECT items FROM woya_customer_carts WHERE customer_id=${order.customer_id} FOR UPDATE`;
+      if (cart)
+        await tx`UPDATE woya_customer_carts SET items=${tx.json(subtractPurchase(cart.items as AccountCartItem[], order.items))},version=version+1,updated_at=now() WHERE customer_id=${order.customer_id}`;
+    }
     await tx`INSERT INTO woya_audit(actor,action,entity) VALUES('paytr',${`payment:${state}`},${row.order_id})`;
   });
 }
