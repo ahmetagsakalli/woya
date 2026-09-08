@@ -13,7 +13,9 @@
     "test:pricing": "tsx --test tests/pricing.test.ts",
     "test:artwork": "tsx --test tests/clock-artwork.test.ts",
     "test:crop": "tsx --test tests/crop.test.ts",
-    "test:admin:http": "tsx tests/admin-http.ts"
+    "test:admin:http": "tsx tests/admin-http.ts",
+    "test:payments": "tsx --test tests/payments.test.ts",
+    "test:payments:http": "tsx tests/payments-http.ts"
   },
   "dependencies": {
     "@vercel/blob": "^2.8.0",

@@ -138,7 +138,7 @@ export const orderStatuses = [
   "iptal",
 ] as const;
 export const statusLabels: Record<(typeof orderStatuses)[number], string> = {
-  yeni: "Yeni talep",
+  yeni: "Yeni",
   gorusuluyor: "Görüşülüyor",
   onaylandi: "Onaylandı",
   hazirlaniyor: "Hazırlanıyor",
@@ -174,6 +174,7 @@ export type OrderItem = {
   options: string[];
 };
 export type Order = {
+  payment?: import("../payments/schema").PaymentSummary | null;
   id: string;
   reference: string;
   status: (typeof orderStatuses)[number];

@@ -34,8 +34,10 @@ pnpm test:admin
 pnpm test:pricing
 pnpm test:artwork
 pnpm test:crop
+pnpm test:payments
 pnpm build
 pnpm test:admin:http
+pnpm test:payments:http
 ```
 
 HTTP testleri once production build ister; kendi gecici PGlite veritabanini ve
@@ -48,6 +50,8 @@ gorsel depolama da desteklenir. Repo kaynak kodunu ve paketlenmis katalog
 gorsellerini icerir; canli veritabani kayitlari ve sonradan yuklenen Blob
 gorselleri ayri kaynaklardir ve bu repo bir veritabani yedegi degildir.
 
-Odeme entegrasyonu henuz bagli degildir; uygulama tahsilat yapmaz.
+PayTR iFrame odeme entegrasyonu mevcuttur; varsayilan olarak kapalidir.
+Gizli degerler, migration, callback ve kabul testi icin [PayTR rehberi](PAYTR.md).
+GitHub'a kod yuklemek odeme aktivasyonu veya gercek tahsilat yapildigi anlamina gelmez.
 Trendyol servis katmani hazirdir, gercek anahtarlar olmadan veri cekmez.
 Secret dosyalari, `.vercel`, `node_modules`, build ve test ciktilari Git'e eklenmez.

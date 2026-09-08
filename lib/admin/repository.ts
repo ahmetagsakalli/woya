@@ -119,6 +119,7 @@ function toOrder(r: OrderRow): Order {
     createdAt: r.created_at.toISOString(),
     version: r.version,
     history: r.history,
+    payment: r.payment,
   };
 }
 export async function getOrders(): Promise<Order[]> {

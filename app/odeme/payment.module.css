@@ -1,0 +1,275 @@
+.section {
+  overflow-wrap: anywhere;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 24px 24px 64px;
+  color: #171a1c;
+  letter-spacing: 0;
+}
+.section h2 {
+  font-size: 22px;
+  line-height: 1.3;
+  margin: 0 0 24px;
+}
+.back {
+  display: inline-flex;
+  gap: 8px;
+  align-items: center;
+  margin-bottom: 24px;
+  font-size: 14px;
+}
+.layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr);
+  gap: 48px;
+  align-items: start;
+}
+.form,
+.summary {
+  min-width: 0;
+}
+.form fieldset {
+  margin: 0 0 24px;
+  padding: 0;
+  border: 0;
+  display: grid;
+  gap: 18px;
+  min-width: 0;
+}
+.form label {
+  display: grid;
+  gap: 8px;
+  font-size: 14px;
+  font-weight: 500;
+  min-width: 0;
+}
+.form input:not([type="checkbox"]),
+.form textarea {
+  width: 100%;
+  min-width: 0;
+  border: 1px solid #cfd2d3;
+  border-radius: 4px;
+  background: #fff;
+  color: #171a1c;
+  padding: 12px;
+  font: inherit;
+  font-size: 16px;
+}
+.form textarea {
+  resize: vertical;
+}
+.form input:focus-visible,
+.form textarea:focus-visible {
+  outline: 2px solid #171a1c;
+  outline-offset: 2px;
+}
+.form button {
+  width: 100%;
+  min-height: 48px;
+  white-space: normal;
+}
+.fields {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+.form .consent {
+  display: flex;
+  align-items: start;
+  gap: 12px;
+  font-weight: 400;
+  line-height: 1.6;
+}
+.consent input {
+  margin: 5px 0 0;
+  flex: 0 0 18px;
+  width: 18px;
+  height: 18px;
+  accent-color: #171a1c;
+}
+.consent a {
+  text-decoration: underline;
+}
+.summary {
+  border-top: 1px solid #d9dcdd;
+  padding-top: 24px;
+}
+.items {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+.items li {
+  display: grid;
+  grid-template-columns: 64px minmax(0, 1fr) auto;
+  gap: 12px;
+  border-bottom: 1px solid #e2e4e5;
+  padding: 16px 0;
+  font-size: 14px;
+}
+.items strong {
+  font-weight: 600;
+  overflow-wrap: anywhere;
+}
+.items small {
+  display: block;
+  font-size: 12px;
+  line-height: 1.5;
+  color: #61686d;
+  margin-top: 4px;
+  overflow-wrap: anywhere;
+}
+.image {
+  width: 64px;
+  height: 80px;
+  position: relative;
+  background: #f4f5f5;
+}
+.image img {
+  object-fit: contain;
+}
+.totals {
+  margin: 20px 0 0;
+}
+.totals div {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 10px 0;
+}
+.totals dd {
+  margin: 0;
+  font-weight: 600;
+}
+.totals div:last-child {
+  font-size: 20px;
+  border-top: 1px solid #d9dcdd;
+  margin-top: 10px;
+  padding-top: 18px;
+}
+.notice,
+.error {
+  padding: 14px 16px;
+  background: #f1f3f3;
+  border-left: 3px solid #61686d;
+  line-height: 1.6;
+  margin: 0 0 24px;
+  font-size: 14px;
+}
+.error {
+  color: #922d31;
+  background: #fff5f5;
+  border-color: #b84247;
+}
+.error p {
+  margin: 0 0 12px;
+}
+.error button {
+  background: transparent;
+  border: 1px solid currentColor;
+  padding: 8px 12px;
+  border-radius: 4px;
+}
+.frame {
+  display: block;
+  width: 100%;
+  border: 0;
+  min-height: 760px;
+  background: #fff;
+}
+.result {
+  max-width: 640px;
+  margin: 0 auto;
+  padding: 32px 0;
+  overflow-wrap: anywhere;
+}
+.result > svg {
+  margin-bottom: 20px;
+}
+.result p {
+  line-height: 1.7;
+  margin-bottom: 20px;
+}
+.result a,
+.result button {
+  margin: 8px 12px 0 0;
+}
+.reference {
+  color: #61686d;
+  font-size: 13px;
+}
+.receipt {
+  border-block: 1px solid #d9dcdd;
+  padding: 16px 0;
+  margin: 16px 0 24px;
+  font-size: 14px;
+}
+.receipt summary {
+  font-weight: 600;
+  cursor: pointer;
+}
+.receipt ul {
+  list-style: none;
+  padding: 0;
+}
+.receipt li {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 24px;
+  padding: 12px 0;
+}
+.receipt li strong {
+  flex: 1;
+  min-width: 160px;
+}
+.receipt small {
+  width: 100%;
+  color: #61686d;
+  line-height: 1.6;
+}
+.receipt p {
+  line-height: 1.6;
+}
+.spinner {
+  animation: spin 1s linear infinite;
+}
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+@media (max-width: 800px) {
+  .layout {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 32px;
+  }
+  .summary {
+    grid-row: 1;
+  }
+}
+@media (max-width: 480px) {
+  .section {
+    padding: 20px 16px 48px;
+  }
+  .fields {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .items li {
+    grid-template-columns: 56px minmax(0, 1fr);
+  }
+  .items li > strong {
+    grid-column: 2;
+  }
+  .image {
+    width: 56px;
+    height: 72px;
+  }
+  .section h2 {
+    font-size: 20px;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .spinner {
+    animation: none;
+  }
+}

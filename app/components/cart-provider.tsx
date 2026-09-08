@@ -11,6 +11,8 @@ import {
 } from "react";
 import { configurationSchema, type Configuration } from "@/lib/pricing";
 import { cartKey } from "@/lib/cart-key";
+import { subtractPurchase } from "@/lib/payments/cart";
+import type { CheckoutItem } from "@/lib/payments/schema";
 
 export type CartProduct = {
   slug: string;
@@ -26,12 +28,14 @@ export type CartItem = CartProduct & {
 };
 
 type CartContextValue = {
+  ready: boolean;
   items: CartItem[];
   totalCount: number;
   addItem: (product: CartProduct) => void;
   removeItem: (slug: string) => void;
   updateQuantity: (slug: string, quantity: number) => void;
   clearCart: () => void;
+  completePurchase: (reference: string, purchased: CheckoutItem[]) => void;
 };
 
 const cartStorageKey = "woya-cart-v1";
@@ -171,6 +175,21 @@ export function CartProvider({ children }: { children: ReactNode }) {
     setItems([]);
   }, []);
 
+  const completePurchase = useCallback(
+    (reference: string, purchased: CheckoutItem[]) => {
+      // A receipt refresh must never subtract the same purchase twice or clear unrelated additions.
+      try {
+        const key = `woya-purchased:${reference}`;
+        if (window.localStorage.getItem(key)) return;
+        window.localStorage.setItem(key, "1");
+        setItems((current) => subtractPurchase(current, purchased));
+      } catch {
+        /* Do not repeatedly modify the cart when persistence is unavailable. */
+      }
+    },
+    [],
+  );
+
   const totalCount = useMemo(
     () => items.reduce((total, item) => total + item.quantity, 0),
     [items],
@@ -178,14 +197,25 @@ export function CartProvider({ children }: { children: ReactNode }) {
 
   const value = useMemo(
     () => ({
+      ready: hasLoadedStorage,
       items,
       totalCount,
       addItem,
       removeItem,
       updateQuantity,
       clearCart,
+      completePurchase,
     }),
-    [addItem, clearCart, items, removeItem, totalCount, updateQuantity],
+    [
+      addItem,
+      clearCart,
+      items,
+      removeItem,
+      totalCount,
+      updateQuantity,
+      hasLoadedStorage,
+      completePurchase,
+    ],
   );
 
   return <CartContext.Provider value={value}>{children}</CartContext.Provider>;

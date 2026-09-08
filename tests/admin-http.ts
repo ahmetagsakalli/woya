@@ -43,6 +43,7 @@ async function main() {
   try {
     await pg.exec(await readFile("db/001-admin.sql", "utf8"));
     await pg.exec(await readFile("db/002-admin-security.sql", "utf8"));
+    await pg.exec(await readFile("db/003-paytr.sql", "utf8"));
     for (const c of initialCategories)
       await pg.query("INSERT INTO woya_categories(id,data) VALUES($1,$2)", [
         c.id,
@@ -80,6 +81,10 @@ async function main() {
           ADMIN_PASSWORD_HASH: hash,
           ADMIN_SESSION_SECRET: randomBytes(32).toString("hex"),
           APP_URL: base,
+          PAYTR_ENABLED: "false",
+          PAYTR_MERCHANT_ID: "",
+          PAYTR_MERCHANT_KEY: "",
+          PAYTR_MERCHANT_SALT: "",
           STORAGE_DRIVER: "local",
           UPLOAD_DIR: uploadDir,
           VERCEL: "",

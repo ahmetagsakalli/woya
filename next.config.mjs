@@ -13,6 +13,18 @@ const nextConfig = {
     return [
       { source: "/:path*", headers },
       {
+        source: "/odeme/:path*",
+        headers: [
+          { key: "Cache-Control", value: "private, no-store" },
+          { key: "X-Robots-Tag", value: "noindex, nofollow" },
+          { key: "Referrer-Policy", value: "no-referrer" },
+        ],
+      },
+      {
+        source: "/api/odeme/:path*",
+        headers: [{ key: "Cache-Control", value: "private, no-store" }],
+      },
+      {
         source: "/admin/:path*",
         headers: [
           { key: "Cache-Control", value: "private, no-store" },

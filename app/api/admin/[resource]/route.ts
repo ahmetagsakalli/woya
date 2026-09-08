@@ -84,6 +84,10 @@ export async function POST(request: Request, context: Context) {
           throw new HttpError(409, "İçerik güncellenmiş. Sayfayı yenileyin.");
       } else if (resource === "orders") {
         const data = orderUpdateSchema.parse(body.data);
+        const [order] = await tx`SELECT payment FROM woya_orders WHERE id=${z.uuid().parse(id)} FOR UPDATE`;
+        if (order?.payment && ["onaylandi", "hazirlaniyor", "kargoda", "tamamlandi"].includes(data.status) &&
+            (order.payment.state !== "paid" || order.payment.testMode))
+          throw new HttpError(409, "Doğrulanmış gerçek ödeme olmadan sipariş işleme alınamaz.");
         const rows =
           await tx`UPDATE woya_orders SET status=${data.status},internal_note=${data.internalNote},version=version+1,
           history=history || ${tx.json([{ status: data.status, at: new Date().toISOString() }])}::jsonb
@@ -91,7 +95,7 @@ export async function POST(request: Request, context: Context) {
         if (!rows.length)
           throw new HttpError(
             409,
-            "Talep başka bir sekmede güncellenmiş. Sayfayı yenileyin.",
+            "Sipariş başka bir sekmede güncellenmiş. Sayfayı yenileyin.",
           );
       } else throw new HttpError(404, "İşlem bulunamadı.");
       await tx`INSERT INTO woya_audit(actor,action,entity) VALUES(${actor},${`${resource}:save`},${id})`;

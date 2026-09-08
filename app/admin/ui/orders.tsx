@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { Funnel } from "lucide-react";
 import { orderStatuses, statusLabels, type Order } from "@/lib/admin/schema";
 import { date, Empty, FormEnd, money, useSave } from "./shared";
+import { paymentLabels } from "@/lib/payments/schema";
 export function OrdersTable({
   orders,
   remote,
@@ -84,6 +85,7 @@ export function OrdersTable({
               <th>Müşteri</th>
               <th>Adet</th>
               <th>Durum</th>
+              <th>Ödeme</th>
               <th>Tarih</th>
             </tr>
           </thead>
@@ -102,6 +104,17 @@ export function OrdersTable({
                   </td>
                   <td>{o.items.reduce((n, i) => n + i.quantity, 0)}</td>
                   <td>{statusLabels[o.status]}</td>
+                  <td>
+                    {o.payment ? (
+                      <>
+                        {o.payment.testMode && <strong>TEST · </strong>}
+                        {paymentLabels[o.payment.state]}
+                        <small>{money(o.payment.amount / 100)}</small>
+                      </>
+                    ) : (
+                      "Çevrimiçi ödeme yok"
+                    )}
+                  </td>
                   <td>{date(o.createdAt)}</td>
                 </tr>
               ),
@@ -136,7 +149,24 @@ export function OrderDetail({ order }: { order: Order }) {
   return (
     <>
       <div className="admin-notice">
-        Bu kayıt için çevrimiçi ödeme alınmadı.
+        {order.payment ? (
+          <>
+            {order.payment.testMode
+              ? "TEST İŞLEMİ · Ürün göndermeyin. "
+              : "PayTR · "}
+            {paymentLabels[order.payment.state]}.{" "}
+            {order.payment.paidAt && (
+              <>İşlem tarihi: {date(order.payment.paidAt)}. </>
+            )}
+            {order.payment.state === "review" &&
+              "PayTR mağaza panelinden işlemi kontrol edin; otomatik sipariş onayı verilmedi. "}
+            {order.payment.state === "paid" &&
+              order.status === "iptal" &&
+              "Sipariş iptal edilmiş ancak ödeme alınmış. İptal, otomatik para iadesi yapmaz; PayTR üzerinden kontrol edin."}
+          </>
+        ) : (
+          "Bu kayıt için çevrimiçi ödeme alınmadı."
+        )}
       </div>
       <div className="admin-editor-grid">
         <div>
@@ -152,8 +182,8 @@ export function OrderDetail({ order }: { order: Order }) {
                 </tr>
               </thead>
               <tbody>
-                {order.items.map((i) => (
-                  <tr key={i.slug}>
+                {order.items.map((i, index) => (
+                  <tr key={index}>
                     <td>
                       {i.title}
                       {i.options.map((o, n) => (
@@ -176,6 +206,19 @@ export function OrderDetail({ order }: { order: Order }) {
             Kayıt anındaki ürün toplamı:{" "}
             <strong>{allPriced ? money(total) : "Tutar belirtilmemiş"}</strong>
           </p>
+          {order.payment && (
+            <p className="admin-total">
+              Kargo: {money(order.payment.shipping / 100)} · Sipariş toplamı:{" "}
+              <strong>{money(order.payment.amount / 100)}</strong>
+              {order.payment.receivedAmount !== undefined && (
+                <>
+                  {" "}
+                  · PayTR işlem tutarı:{" "}
+                  {money(order.payment.receivedAmount / 100)}
+                </>
+              )}
+            </p>
+          )}
           <h2>Müşteri Notu</h2>
           <p className="admin-pre">{order.note || "Not eklenmemiş."}</p>
           <h2>Durum Geçmişi</h2>
