@@ -1,0 +1,19 @@
+services:
+  db:
+    image: postgres:17-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: woya
+      POSTGRES_USER: woya
+      POSTGRES_PASSWORD: ${DB_PASSWORD:?Set DB_PASSWORD in .env.local}
+    ports:
+      - "127.0.0.1:5432:5432"
+    volumes:
+      - woya_postgres:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U woya -d woya"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+volumes:
+  woya_postgres:

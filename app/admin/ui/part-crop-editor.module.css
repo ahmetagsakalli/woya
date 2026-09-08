@@ -1,0 +1,30 @@
+.editor { border-top: 1px solid #d9dcde; padding-block: 24px; min-width: 0; }
+.toolbar { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; margin-bottom: 18px; }
+.toolbar h2 { margin: 0 auto 0 0; }
+.toolbar button[aria-pressed="true"] { background: #171a1c; color: #fff; }
+.zoom { display: flex !important; gap: 8px; align-items: center; margin: 0 0 0 auto !important; }
+.zoom input { width: 100px !important; }
+.zoom span { min-width: 42px; }
+.workspace { display: grid; grid-template-columns: minmax(0, 1fr) 190px; gap: 20px; }
+.viewport { overflow: auto; max-height: 70vh; background: #dfe2e3; border: 1px solid #ccd0d2; border-radius: 4px; }
+.plane { position: relative; width: 100%; }
+.plane > img { object-fit: contain; pointer-events: none; }
+.overlay { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; }
+.handle { position: absolute; transform: translate(-50%, -50%); width: 44px; height: 44px; min-height: 44px !important; padding: 0 !important; display: grid !important; place-items: center; background: #171a1c !important; color: white !important; border: 2px solid white !important; border-radius: 50% !important; touch-action: none; cursor: move; }
+.handle:focus-visible { outline: 3px solid #247bac; outline-offset: 2px; }
+.controls { min-width: 0; border: 0; padding: 0; }
+.controls legend { font-weight: 700; padding: 0 0 12px; }
+.previews { display: flex; gap: 16px; margin-block: 20px; }
+.previews figure { flex: 1; min-width: 0; margin: 0; }
+.previews figure > div { position: relative; height: 180px; background: #eef0f1; display: grid; place-items: center; border: 1px solid #d9dcde; }
+.previews img { object-fit: contain; padding: 8px; }
+.previews span { text-align: center; color: #5a6267; font-size: 12px; padding: 8px; }
+.previews figcaption { margin-top: 8px; font-size: 13px; font-weight: 600; }
+@media (max-width: 700px) {
+  .workspace { grid-template-columns: minmax(0, 1fr); }
+  .controls { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+  .controls label { margin: 0 !important; min-width: 0; }
+  .zoom { margin-left: 0 !important; }
+  .previews { gap: 8px; }
+  .previews figure > div { height: 130px; }
+}
