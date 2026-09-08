@@ -1,5 +1,6 @@
 import type { MetadataRoute } from "next";
 import { storefrontProducts } from "@/lib/storefront";
+import { legalHref, legalPages, legalUpdatedAt } from "@/lib/legal";
 
 const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "https://woyatablo.com";
 const staticPages = [
@@ -30,6 +31,12 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       lastModified,
       changeFrequency: "weekly" as const,
       priority: 0.78,
+    })),
+    ...legalPages.map((page) => ({
+      url: `${siteUrl}${legalHref(page.slug)}`,
+      lastModified: new Date(legalUpdatedAt),
+      changeFrequency: "monthly" as const,
+      priority: 0.3,
     })),
     ...woyaProducts.map((product) => ({
       url: `${siteUrl}/urunler/${product.slug}`,

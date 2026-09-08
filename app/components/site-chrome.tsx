@@ -40,13 +40,6 @@ const footerSupportLinks = [
   { label: "Destek talebi", href: "/iletisim" },
 ];
 
-const footerLegalLinks = [
-  { label: "Ön bilgilendirme formu", href: "/iletisim" },
-  { label: "Mesafeli satış sözleşmesi", href: "/iletisim" },
-  { label: "Kişisel veriler ve gizlilik", href: "/iletisim" },
-  { label: "Çerez politikası", href: "/iletisim" },
-];
-
 const footerTrustItems = [
   { icon: Truck, label: "Güvenli paketleme" },
   { icon: PackageCheck, label: "Sipariş takibi kolay" },

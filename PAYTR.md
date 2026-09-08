@@ -32,9 +32,13 @@ bir yerde paylasilmis anahtarlari canli kullanimdan once PayTR'den yenileyin.
 | `CHECKOUT_LEGAL_VERSION` | Musterinin onayladigi belge surumu; ornegin bir yayin tarihi |
 
 Canli modda yasal belge yollari ve surumu eksikse odeme acilmaz. Kod belge
-icerigi uydurmaz veya hukuki uygunluk garantisi vermez. Mevcut footer'daki
-`/iletisim` yer tutuculari kabul edilmez; isletmeye uygun gercek belgeleri
-yayinlayin ve footer linklerini de admin panelinden guncelleyin.
+icerigi uydurmaz veya hukuki uygunluk garantisi vermez. Genel metinler
+`/yasal/mesafeli-satis-sozlesmesi` ve `/yasal/on-bilgilendirme-formu`
+adreslerinde bulunur. Eski footer `/iletisim` yer tutuculari okuma sirasinda
+gercek yollara donusturulur; ozel olarak degistirilmis linkler korunur.
+Bu sayfalarin eklenmesi hukuki kabul veya odeme aktivasyonu degildir.
+Resmi satici kimligi, siparise ozel kalici belgeler ve diger yayin oncesi
+gereksinimler icin `LEGAL.md` kontrol listesini tamamlayin.
 Belgelerde degisiklik yapinca surumu de degistirin. Onay zamani ve surumu
 odeme kaydinda tutulur. Kisisel veriler icin erisim, yedekleme ve saklama
 suresi politikasini isletmenin gereksinimlerine gore belirleyin.

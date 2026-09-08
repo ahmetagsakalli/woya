@@ -12,6 +12,7 @@ import { randomBytes, randomUUID } from "node:crypto";
 import { initialPricing, defaultDimensions } from "../lib/pricing";
 import { defaultRegions } from "../lib/crop";
 import sharp from "sharp";
+import { legalPages, legalHref } from "../lib/legal";
 import {
   initialCategories,
   initialContent,
@@ -55,7 +56,7 @@ async function main() {
         [randomUUID(), p.slug, p.code, p.categoryId, JSON.stringify({ ...p, price: 1500, salePrice: 1250 })],
       );
     await pg.query("INSERT INTO woya_content(id,data) VALUES('site',$1)", [
-      JSON.stringify(initialContent),
+      JSON.stringify({ ...initialContent, email: "", address: "", footerLinks: initialContent.footerLinks.map((link) => link.group === "Yasal" ? { ...link, href: "/iletisim" } : link) }),
     ]);
     await socket.start();
     const password = randomBytes(18).toString("hex");
@@ -130,6 +131,19 @@ async function main() {
         redirect: "manual",
       });
     }
+    for (const page of legalPages) {
+      const response = await fetch(`${base}${legalHref(page.slug)}`);
+      const html = await response.text();
+      check(response.status === 200 && html.includes(`id="legal-title"`), `${page.slug}: legal page renders`);
+      check(html.includes("info@woya.com.tr") && html.includes("120. Sk. No:18"), `${page.slug}: confirmed contact details replace empty legacy fields`);
+      const footerLegal = html.match(/<nav[^>]*aria-label="Yasal"[^>]*>([\s\S]*?)<\/nav>/)?.[1] ?? "";
+      check(legalPages.every((item) => footerLegal.includes(`href="${legalHref(item.slug)}"`)), `${page.slug}: four working legal footer links`);
+      check(!html.includes('class="subpage-hero"'), `${page.slug}: plain page without hero`);
+    }
+    const legalSitemap = await (await fetch(`${base}/sitemap.xml`)).text();
+    check(legalPages.every((page) => legalSitemap.includes(legalHref(page.slug))), "legal routes are in sitemap");
+    const unknownLegal = await fetch(`${base}/yasal/olmayan-belge`);
+    check(unknownLegal.status === 404, "unknown legal slug returns 404");
     const anonymous = await fetch(`${base}/admin`, { redirect: "manual" });
     const anonymousText = await anonymous.text();
     check(

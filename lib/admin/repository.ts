@@ -7,6 +7,7 @@ import { db, databaseConfigured } from "./db";
 import { initialCategories, initialContent, initialProducts } from "./defaults";
 import type { Category, Order, ProductRecord, SiteContent } from "./schema";
 import { initialPricing, pricingSchema } from "../pricing";
+import { resolveLegalContent } from "../legal";
 
 async function readPricingRecord() {
   if (!databaseConfigured()) return { data: initialPricing, version: 0 };
@@ -58,7 +59,7 @@ async function readContentRecord(): Promise<{ data: SiteContent; version: number
     if (!databaseConfigured()) return { data: initialContent, version: 1 };
     const [row] = await db()`SELECT * FROM woya_content WHERE id='site'`;
     if (!row) throw new Error("CONTENT_NOT_INITIALIZED");
-    return { data: row.data, version: row.version };
+    return { data: resolveLegalContent(row.data), version: row.version };
 }
 export const getContentRecord = cache(async () => {
   await connection();
@@ -87,7 +88,7 @@ export const getStorefrontCatalog = cache(async () => {
 });
 const cachedContent = unstable_cache(
   async () => (await readContentRecord()).data,
-  ["woya-content-v1", cacheScope],
+  ["woya-content-v2-legal", cacheScope],
   { tags: [storefrontCacheTag], revalidate: 300 },
 );
 export const getContent = cache(async () => {
