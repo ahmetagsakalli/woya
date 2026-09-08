@@ -6,7 +6,7 @@ test -f /var/lib/woya/deployed-sha || exit 0
 for host in woyatablo.com www.woyatablo.com; do
   # Reject stale or mixed answers; ignore the CNAME line returned for www.
   for resolver in 1.1.1.1 8.8.8.8; do
-    records=$(dig +short +time=3 +tries=1 @"$resolver" A "$host" | grep -E '^[0-9.]+$' | sort -u)
+    records=$(dig +short +time=3 +tries=1 @"$resolver" A "$host" | grep -E '^[0-9.]+$' | sort -u || true)
     [[ "$records" == 187.124.169.67 ]] || exit 0
     ipv6=$(dig +short +time=3 +tries=1 @"$resolver" AAAA "$host" | grep ':' || true)
     [[ -z "$ipv6" ]] || exit 0
