@@ -1,3 +1,4 @@
+import { CustomerService } from "../../ui/customer-service";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import {
@@ -168,6 +169,9 @@ export default async function AdminPage({
         </nav>
       </>
     );
+  } else if (section === "musteri-islemleri") {
+    title = "Müşteri İşlemleri";
+    content = <CustomerService />;
   } else notFound();
   return (
     <>

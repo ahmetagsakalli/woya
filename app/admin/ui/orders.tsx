@@ -1,10 +1,12 @@
 "use client";
+import { CustomerService } from "./customer-service";
 import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Funnel } from "lucide-react";
 import { orderStatuses, statusLabels, type Order } from "@/lib/admin/schema";
 import { date, Empty, FormEnd, money, useSave } from "./shared";
+import { paymentLabels } from "@/lib/payments/schema";
 export function OrdersTable({
   orders,
   remote,
@@ -84,6 +86,7 @@ export function OrdersTable({
               <th>Müşteri</th>
               <th>Adet</th>
               <th>Durum</th>
+              <th>Ödeme</th>
               <th>Tarih</th>
             </tr>
           </thead>
@@ -102,6 +105,17 @@ export function OrdersTable({
                   </td>
                   <td>{o.items.reduce((n, i) => n + i.quantity, 0)}</td>
                   <td>{statusLabels[o.status]}</td>
+                  <td>
+                    {o.payment ? (
+                      <>
+                        {o.payment.testMode && <strong>TEST · </strong>}
+                        {paymentLabels[o.payment.state]}
+                        <small>{money(o.payment.amount / 100)}</small>
+                      </>
+                    ) : (
+                      "Çevrimiçi ödeme yok"
+                    )}
+                  </td>
                   <td>{date(o.createdAt)}</td>
                 </tr>
               ),
@@ -126,6 +140,10 @@ export function OrdersTable({
 }
 export function OrderDetail({ order }: { order: Order }) {
   const [status, setStatus] = useState(order.status);
+  const [carrier, setCarrier] = useState(order.shipment?.carrier || "");
+  const [trackingNumber, setTrackingNumber] = useState(
+    order.shipment?.trackingNumber || "",
+  );
   const [note, setNote] = useState(order.internalNote);
   const { busy, error, save } = useSave();
   const allPriced = order.items.every((i) => i.unitPrice !== null);
@@ -136,7 +154,24 @@ export function OrderDetail({ order }: { order: Order }) {
   return (
     <>
       <div className="admin-notice">
-        Bu kayıt için çevrimiçi ödeme alınmadı.
+        {order.payment ? (
+          <>
+            {order.payment.testMode
+              ? "TEST İŞLEMİ · Ürün göndermeyin. "
+              : "PayTR · "}
+            {paymentLabels[order.payment.state]}.{" "}
+            {order.payment.paidAt && (
+              <>İşlem tarihi: {date(order.payment.paidAt)}. </>
+            )}
+            {order.payment.state === "review" &&
+              "PayTR mağaza panelinden işlemi kontrol edin; otomatik sipariş onayı verilmedi. "}
+            {order.payment.state === "paid" &&
+              order.status === "iptal" &&
+              "Sipariş iptal edilmiş ancak ödeme alınmış. İptal, otomatik para iadesi yapmaz; PayTR üzerinden kontrol edin."}
+          </>
+        ) : (
+          "Bu kayıt için çevrimiçi ödeme alınmadı."
+        )}
       </div>
       <div className="admin-editor-grid">
         <div>
@@ -152,8 +187,8 @@ export function OrderDetail({ order }: { order: Order }) {
                 </tr>
               </thead>
               <tbody>
-                {order.items.map((i) => (
-                  <tr key={i.slug}>
+                {order.items.map((i, index) => (
+                  <tr key={index}>
                     <td>
                       {i.title}
                       {i.options.map((o, n) => (
@@ -176,6 +211,19 @@ export function OrderDetail({ order }: { order: Order }) {
             Kayıt anındaki ürün toplamı:{" "}
             <strong>{allPriced ? money(total) : "Tutar belirtilmemiş"}</strong>
           </p>
+          {order.payment && (
+            <p className="admin-total">
+              Kargo: {money(order.payment.shipping / 100)} · Sipariş toplamı:{" "}
+              <strong>{money(order.payment.amount / 100)}</strong>
+              {order.payment.receivedAmount !== undefined && (
+                <>
+                  {" "}
+                  · PayTR işlem tutarı:{" "}
+                  {money(order.payment.receivedAmount / 100)}
+                </>
+              )}
+            </p>
+          )}
           <h2>Müşteri Notu</h2>
           <p className="admin-pre">{order.note || "Not eklenmemiş."}</p>
           <h2>Durum Geçmişi</h2>
@@ -208,6 +256,16 @@ export function OrderDetail({ order }: { order: Order }) {
               {order.customer.address || "Belirtilmedi"}
             </dd>
           </dl>
+          {order.billing && (
+            <>
+              <h2>Fatura Adresi</h2>
+              <p className="admin-pre">
+                {order.billing.name}
+                <br />
+                {order.billing.address}
+              </p>
+            </>
+          )}
           <form
             className="admin-form"
             onSubmit={(e) => {
@@ -216,7 +274,12 @@ export function OrderDetail({ order }: { order: Order }) {
                 "orders",
                 {
                   id: order.id,
-                  data: { status, internalNote: note, version: order.version },
+                  data: {
+                    status,
+                    internalNote: note,
+                    version: order.version,
+                    shipment: { carrier, trackingNumber },
+                  },
                 },
                 `/admin/siparisler/${order.id}`,
               );
@@ -236,6 +299,22 @@ export function OrderDetail({ order }: { order: Order }) {
               </select>
             </label>
             <label>
+              Kargo firması
+              <input
+                value={carrier}
+                onChange={(e) => setCarrier(e.target.value)}
+                maxLength={80}
+              />
+            </label>
+            <label>
+              Takip numarası
+              <input
+                value={trackingNumber}
+                onChange={(e) => setTrackingNumber(e.target.value)}
+                maxLength={100}
+              />
+            </label>
+            <label>
               İç not (müşteriye gösterilmez)
               <textarea
                 rows={5}
@@ -248,6 +327,7 @@ export function OrderDetail({ order }: { order: Order }) {
           </form>
         </aside>
       </div>
+      <CustomerService orderId={order.id} />
     </>
   );
 }

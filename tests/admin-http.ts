@@ -12,6 +12,7 @@ import { randomBytes, randomUUID } from "node:crypto";
 import { initialPricing, defaultDimensions } from "../lib/pricing";
 import { defaultRegions } from "../lib/crop";
 import sharp from "sharp";
+import { legalPages, legalHref } from "../lib/legal";
 import {
   initialCategories,
   initialContent,
@@ -43,6 +44,8 @@ async function main() {
   try {
     await pg.exec(await readFile("db/001-admin.sql", "utf8"));
     await pg.exec(await readFile("db/002-admin-security.sql", "utf8"));
+    await pg.exec(await readFile("db/003-paytr.sql", "utf8"));
+    await pg.exec(await readFile("db/004-customer-accounts.sql", "utf8"));
     for (const c of initialCategories)
       await pg.query("INSERT INTO woya_categories(id,data) VALUES($1,$2)", [
         c.id,
@@ -54,7 +57,7 @@ async function main() {
         [randomUUID(), p.slug, p.code, p.categoryId, JSON.stringify({ ...p, price: 1500, salePrice: 1250 })],
       );
     await pg.query("INSERT INTO woya_content(id,data) VALUES('site',$1)", [
-      JSON.stringify(initialContent),
+      JSON.stringify({ ...initialContent, email: "", address: "", footerLinks: initialContent.footerLinks.map((link) => link.group === "Yasal" ? { ...link, href: "/iletisim" } : link) }),
     ]);
     await socket.start();
     const password = randomBytes(18).toString("hex");
@@ -80,6 +83,10 @@ async function main() {
           ADMIN_PASSWORD_HASH: hash,
           ADMIN_SESSION_SECRET: randomBytes(32).toString("hex"),
           APP_URL: base,
+          PAYTR_ENABLED: "false",
+          PAYTR_MERCHANT_ID: "",
+          PAYTR_MERCHANT_KEY: "",
+          PAYTR_MERCHANT_SALT: "",
           STORAGE_DRIVER: "local",
           UPLOAD_DIR: uploadDir,
           VERCEL: "",
@@ -125,6 +132,19 @@ async function main() {
         redirect: "manual",
       });
     }
+    for (const page of legalPages) {
+      const response = await fetch(`${base}${legalHref(page.slug)}`);
+      const html = await response.text();
+      check(response.status === 200 && html.includes(`id="legal-title"`), `${page.slug}: legal page renders`);
+      check(html.includes("info@woya.com.tr") && html.includes("120. Sk. No:18"), `${page.slug}: confirmed contact details replace empty legacy fields`);
+      const footerLegal = html.match(/<nav[^>]*aria-label="Yasal"[^>]*>([\s\S]*?)<\/nav>/)?.[1] ?? "";
+      check(legalPages.every((item) => footerLegal.includes(`href="${legalHref(item.slug)}"`)), `${page.slug}: four working legal footer links`);
+      check(!html.includes('class="subpage-hero"'), `${page.slug}: plain page without hero`);
+    }
+    const legalSitemap = await (await fetch(`${base}/sitemap.xml`)).text();
+    check(legalPages.every((page) => legalSitemap.includes(legalHref(page.slug))), "legal routes are in sitemap");
+    const unknownLegal = await fetch(`${base}/yasal/olmayan-belge`);
+    check(unknownLegal.status === 404, "unknown legal slug returns 404");
     const anonymous = await fetch(`${base}/admin`, { redirect: "manual" });
     const anonymousText = await anonymous.text();
     check(

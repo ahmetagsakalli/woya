@@ -1,39 +1,31 @@
-import type { Metadata } from "next";
-import Link from "next/link";
-import { ArrowUpRight, UserRound } from "lucide-react";
-import { PageShell } from "../components/page-shell";
-
-export const metadata: Metadata = {
-  title: "Hesap",
-  description: "WOYA hesap ve sipariş takip giriş sayfası.",
-  alternates: { canonical: "/profil" },
-};
-
-export default function ProfilePage() {
+import { pageSession } from "@/lib/customer/auth";
+import { LoginForm, Logout, ProfileForm } from "./forms";
+import styles from "./account.module.css";
+export default async function ProfilePage({
+  searchParams,
+}: {
+  searchParams: Promise<{ kapandi?: string; guncellendi?: string }>;
+}) {
+  const session = await pageSession();
+  const q = await searchParams;
   return (
-    <PageShell
-      title="Siparişlerinizi takip edin."
-      text="Hesap alanı, sipariş takibi ve iletişim süreci için hazırlanmıştır."
-    >
-      <section className="utility-page-section">
-        <div className="utility-panel">
-          <UserRound aria-hidden="true" size={30} />
-          <h2>Hesap girişi yakında aktif olacak.</h2>
-          <p>
-            Şimdilik sipariş ve ürün bilgileri için telefon, WhatsApp veya Instagram üzerinden
-            WOYA ile iletişime geçebilirsiniz.
-          </p>
-          <div className="utility-actions">
-            <Link className="product-detail-primary" href="/iletisim">
-              İletişime geç
-              <ArrowUpRight aria-hidden="true" size={18} />
-            </Link>
-            <Link className="product-detail-secondary" href="/urunler">
-              Ürünleri incele
-            </Link>
-          </div>
-        </div>
+    <>
+      <h1>{session ? "Profilim" : "Giriş yap"}</h1>
+      {q.guncellendi === "1" && (
+        <p role="status" className={styles.success}>
+          Bilgileriniz güncellendi. Yeniden giriş yapın.
+        </p>
+      )}
+      {q.kapandi === "1" && (
+        <p role="status" className={styles.success}>
+          Hesap kapatma talebiniz alındı. Saklama yükümlülükleri bulunan
+          kayıtlar inceleme için korunur.
+        </p>
+      )}
+      <section className={styles.panel}>
+        {session ? <ProfileForm customer={session.customer} /> : <LoginForm />}
       </section>
-    </PageShell>
+      {session && <Logout />}
+    </>
   );
 }

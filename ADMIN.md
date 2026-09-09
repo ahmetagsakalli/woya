@@ -2,7 +2,7 @@
 
 ## Durum ve sınırlar
 
-Son düzenleme: kullanıcının isteğiyle Entegrasyonlar ekranı ve sipariş talebi formu kaldırıldı. Eski `/api/siparis-talebi` adresi HTTP 410 döndürür ve kayıt oluşturmaz. Sipariş geçmişi korunur. Ödeme entegrasyonu kullanıcı kararıyla ertelendi: sepette gerçek katalog fiyatlarından ara toplam gösterilir; fiyatı eksik ürünler için tutar uydurulmaz. Ödeme sağlayıcısı bağlanana kadar "Ödemeye geç" düğmesi devre dışıdır. Bu düzenleme ödeme entegrasyonu veya tahsilat değildir.
+PayTR iFrame ödeme akışı eklendi; varsayılan olarak kapalı ve test modundadır. Kurulum, gizli ortam değerleri, veritabanı migration'ı, bildirim adresi ve canlıya geçiş kontrolleri için [PAYTR.md](PAYTR.md) dosyasını okuyun. Bu kod değişikliği canlı ödeme aktivasyonu değildir. Entegrasyonlar ekranı ve eski sipariş talebi formu kapalı kalır; `/api/siparis-talebi` HTTP 410 döndürür. Sipariş geçmişi korunur.
 
 7 Eylül 2026 tarihinde kullanıcının sonraki yayın onayıyla Vercel'e yayınlandı: https://woya-tablo.vercel.app. Yönetim girişi https://woya-tablo.vercel.app/admin/giris adresindedir; tek yönetici yalnızca parolayla giriş yapar. Neon PostgreSQL ve Vercel Blob production ortamına bağlandı. Başlangıçta 54 katalog kaydı, 5 kategori ve site içeriği aktarıldı; örnek sipariş oluşturulmadı. Parola sohbete veya repoya yazılmadı; yerel kullanıcının `~/.config/woya/admin-production.json` dosyasında yalnızca kendisinin okuyabileceği izinlerle saklanır.
 
@@ -48,7 +48,8 @@ Mevcut production kaynakları: `woya-admin-db` (Neon Free, Frankfurt) ve `woya-p
 | `/admin/medya`           | Mevcut görseller ve kalıcı yükleme                               |
 | `/admin/guvenlik`        | Mevcut şifreyle şifre değiştirme, oturum özeti ve diğer oturumları kapatma |
 | `/admin/fiyatlandirma`   | Tablo/saat m² bedelleri, hazır ölçüler ve özel ölçü sınırları |
-| `/sepet`                 | Ürün/adet yönetimi ve ara toplam; ödeme bağlantısı bekleniyor             |
+| `/sepet`                 | Ürün/adet yönetimi, güncel fiyatlar ve yapılandırıldığında PayTR ödeme geçişi |
+| `/odeme`                 | Teslimat bilgileri ve sunucuda doğrulanan ödeme özeti                     |
 
 ## İş kuralları
 
@@ -58,8 +59,8 @@ Mevcut production kaynakları: `woya-admin-db` (Neon Free, Frankfurt) ve `woya-p
 - Görseller en fazla 4 MB, JPG/PNG/WebP/AVIF olabilir. Sunucu dosyayı gerçekten decode eder, EXIF yönünü uygular, metadata'yı kaldırır ve en fazla 2400 px WebP üretir. SVG/HTML yüklenmez. Kapak sırası, alternatif metin ve yüzdeyle odak konumu düzenlenir. Bu bir görsel dosyası crop işlemi değil, görünüm odağıdır.
 - Yeni set ve saat fotoğrafları ürün formundaki **Kendin Oluştur Parçaları** alanında hazırlanabilir. Kırpma onayı görselleri kütüphaneye ekler; ürün kaydedilip ürün ve kategorisi aktif olduğunda parçalar seçicide görünür. Eski hazırlanmış model parçaları korunur.
 - Sepetler tarayıcıdadır. Açık veya terk edilmiş sepet analitiği yoktur; panel bu konuda sahte sayı göstermez.
-- Yeni sipariş talebi oluşturulmaz. Eski kayıtların ürün/fiyat snapshot'ları korunur. Kişiselleştirme dahil fiyatlar `/api/sepet/fiyat` ile sunucuda hesaplanır. İleride ödeme entegrasyonu aynı hesabı ve yayın durumunu tekrar doğrulamalıdır; fiyat kontrolü tek başına ödeme değildir.
-- Sipariş durumunu değiştirmek ödeme alındı anlamına gelmez. Otomatik ödeme, stok rezervasyonu/düşümü veya e-posta/SMS bağlı değildir.
+- Yeni sipariş talebi oluşturulmaz. Eski kayıtların ürün/fiyat snapshot'ları korunur. Kişiselleştirme dahil fiyatlar sunucuda hesaplanır; PayTR başlangıcında aktiflik ve fiyat yeniden doğrulanır. Fiyat kontrolü tek başına ödeme değildir.
+- Sipariş durumunu değiştirmek ödeme alındı anlamına gelmez. Ödeme yalnızca doğrulanmış PayTR bildirimiyle kaydedilir. Test ve ödemesi doğrulanmamış siparişler hazırlama/gönderim durumuna alınamaz. Stok rezervasyonu/düşümü veya e-posta/SMS bağlı değildir.
 - Ürün silinince eski sipariş kalemleri korunur. Kullanılan kategori silinemez. Kayıt sürümü kontrol edilir; başka sekmede değişmiş ürün/içerik/sipariş üzerine sessizce yazılmaz.
 - Doğrudan satış açılmadan önce ödeme sağlayıcısı, gerçek fiyatlar, işletmenin aydınlatma metni, saklama süresi ve yasal footer belgeleri tamamlanmalıdır.
 

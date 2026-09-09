@@ -30,7 +30,7 @@ const footerShopLinks = [
   { label: "Cam Tablo & Saat", href: "/koleksiyon" },
   { label: "Modern Tablolar", href: "/tablolar" },
   { label: "Sepet ve ödeme", href: "/sepet" },
-  { label: "Sipariş Takip", href: "/iletisim" },
+  { label: "Sipariş Takip", href: "/profil/misafir" },
 ];
 
 const footerSupportLinks = [
@@ -38,13 +38,6 @@ const footerSupportLinks = [
   { label: "Sıkça sorulan sorular", href: "/sss" },
   { label: "Teslimat ve kargo", href: "/iletisim" },
   { label: "Destek talebi", href: "/iletisim" },
-];
-
-const footerLegalLinks = [
-  { label: "Ön bilgilendirme formu", href: "/iletisim" },
-  { label: "Mesafeli satış sözleşmesi", href: "/iletisim" },
-  { label: "Kişisel veriler ve gizlilik", href: "/iletisim" },
-  { label: "Çerez politikası", href: "/iletisim" },
 ];
 
 const footerTrustItems = [
@@ -223,7 +216,14 @@ export async function SiteFooter() {
         <nav className="footer-nav" aria-label="Alışveriş">
           <h3>Alışveriş</h3>
           {footerShopLinks.map((link) => (
-            <Link href={link.href} key={link.label}>
+            <Link
+              href={
+                link.label === "Sipariş Takip" && link.href === "/iletisim"
+                  ? "/profil/misafir"
+                  : link.href
+              }
+              key={link.label}
+            >
               {link.label}
             </Link>
           ))}
@@ -232,7 +232,14 @@ export async function SiteFooter() {
         <nav className="footer-nav" aria-label="Destek">
           <h3>Destek</h3>
           {footerSupportLinks.map((link) => (
-            <Link href={link.href} key={link.label}>
+            <Link
+              href={
+                link.label === "Sipariş Takip" && link.href === "/iletisim"
+                  ? "/profil/misafir"
+                  : link.href
+              }
+              key={link.label}
+            >
               {link.label}
             </Link>
           ))}
@@ -241,7 +248,14 @@ export async function SiteFooter() {
         <nav className="footer-nav" aria-label="Yasal">
           <h3>Yasal</h3>
           {footerLegalLinks.map((link) => (
-            <Link href={link.href} key={link.label}>
+            <Link
+              href={
+                link.label === "Sipariş Takip" && link.href === "/iletisim"
+                  ? "/profil/misafir"
+                  : link.href
+              }
+              key={link.label}
+            >
               {link.label}
             </Link>
           ))}

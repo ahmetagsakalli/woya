@@ -4,6 +4,7 @@ import {
   woyaProducts,
 } from "../../app/data/products";
 import type { Category, ProductRecord, SiteContent } from "./schema";
+import { legalContact, legalFooterLinks } from "../legal";
 
 export const initialCategories: Category[] = [
   {
@@ -96,8 +97,8 @@ export const initialContent: SiteContent = {
   phone: "+905325908007",
   phoneDisplay: "+90 532 590 80 07",
   instagram: "https://www.instagram.com/woyatablo/",
-  email: "",
-  address: "",
+  email: legalContact.email,
+  address: legalContact.address,
   footerText:
     "Tablo ve saatlerde yaşam alanınıza karakter katan seçili dekoratif ürünler.",
   footerLinks: [
@@ -111,15 +112,12 @@ export const initialContent: SiteContent = {
     { label: "Cam Tablo & Saat", href: "/koleksiyon", group: "Alışveriş" },
     { label: "Modern Tablolar", href: "/tablolar", group: "Alışveriş" },
     { label: "Sepet ve sipariş talebi", href: "/sepet", group: "Alışveriş" },
-    { label: "Sipariş Takip", href: "/iletisim", group: "Alışveriş" },
+    { label: "Sipariş Takip", href: "/profil/misafir", group: "Alışveriş" },
     { label: "Hakkımızda", href: "/hakkimizda", group: "Destek" },
     { label: "Sıkça sorulan sorular", href: "/sss", group: "Destek" },
     { label: "Teslimat ve kargo", href: "/iletisim", group: "Destek" },
     { label: "Destek talebi", href: "/iletisim", group: "Destek" },
-    { label: "Ön bilgilendirme formu", href: "/iletisim", group: "Yasal" },
-    { label: "Mesafeli satış sözleşmesi", href: "/iletisim", group: "Yasal" },
-    { label: "Kişisel veriler ve gizlilik", href: "/iletisim", group: "Yasal" },
-    { label: "Çerez politikası", href: "/iletisim", group: "Yasal" },
+    ...legalFooterLinks,
   ],
   faqs: [
     {

@@ -33,14 +33,21 @@ export const imageSchema = z.object({
   x: z.number().min(0).max(100),
   y: z.number().min(0).max(100),
 });
-export const builderPartsSchema = z.object({
-  enabled: z.boolean(),
-  source: imageUrl,
-  regions: cropRegionsSchema,
-  left: imageUrl.optional(),
-  center: imageUrl,
-  right: imageUrl.optional(),
-}).refine((v) => Boolean(v.left) === Boolean(v.right) && Boolean(v.left) === Boolean(v.regions.left), "Parçalar eksik.");
+export const builderPartsSchema = z
+  .object({
+    enabled: z.boolean(),
+    source: imageUrl,
+    regions: cropRegionsSchema,
+    left: imageUrl.optional(),
+    center: imageUrl,
+    right: imageUrl.optional(),
+  })
+  .refine(
+    (v) =>
+      Boolean(v.left) === Boolean(v.right) &&
+      Boolean(v.left) === Boolean(v.regions.left),
+    "Parçalar eksik.",
+  );
 export type BuilderParts = z.infer<typeof builderPartsSchema>;
 export const productSchema = z
   .object({
@@ -58,7 +65,18 @@ export const productSchema = z
     images: z.array(imageSchema).min(1).max(12),
     builderParts: builderPartsSchema.optional(),
   })
-  .refine((v) => !v.builderParts?.enabled || (v.type === "set" ? Boolean(v.builderParts.left && v.builderParts.right) : v.type === "saat"), { message: "Kendin Oluştur için setin üç parçası veya saat görseli gerekir.", path: ["builderParts"] })
+  .refine(
+    (v) =>
+      !v.builderParts?.enabled ||
+      (v.type === "set"
+        ? Boolean(v.builderParts.left && v.builderParts.right)
+        : v.type === "saat"),
+    {
+      message:
+        "Kendin Oluştur için setin üç parçası veya saat görseli gerekir.",
+      path: ["builderParts"],
+    },
+  )
   .refine(
     (v) => v.salePrice === null || (v.price !== null && v.salePrice < v.price),
     {
@@ -138,7 +156,7 @@ export const orderStatuses = [
   "iptal",
 ] as const;
 export const statusLabels: Record<(typeof orderStatuses)[number], string> = {
-  yeni: "Yeni talep",
+  yeni: "Yeni",
   gorusuluyor: "Görüşülüyor",
   onaylandi: "Onaylandı",
   hazirlaniyor: "Hazırlanıyor",
@@ -174,6 +192,9 @@ export type OrderItem = {
   options: string[];
 };
 export type Order = {
+  billing?: { name: string; address: string } | null;
+  shipment?: { carrier: string; trackingNumber: string } | null;
+  payment?: import("../payments/schema").PaymentSummary | null;
   id: string;
   reference: string;
   status: (typeof orderStatuses)[number];
@@ -186,6 +207,20 @@ export type Order = {
   history: { status: string; at: string }[];
 };
 export const orderUpdateSchema = z.object({
+  shipment: z
+    .object({
+      carrier: z.string().trim().max(80),
+      trackingNumber: z
+        .string()
+        .trim()
+        .max(100)
+        .regex(/^[A-Za-z0-9 -]*$/),
+    })
+    .refine(
+      (s) => Boolean(s.carrier) === Boolean(s.trackingNumber),
+      "Kargo firması ve takip numarasını birlikte girin.",
+    )
+    .optional(),
   status: z.enum(orderStatuses),
   internalNote: z.string().max(5000),
   version: z.number().int().positive(),

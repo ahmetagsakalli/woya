@@ -7,14 +7,8 @@ import { db } from "./db";
 
 const cookieName = "woya-admin-session";
 const adminIdentity = "woya-admin";
-export class HttpError extends Error {
-  constructor(
-    public status: number,
-    message: string,
-  ) {
-    super(message);
-  }
-}
+import { HttpError } from "../http-error";
+export { HttpError } from "../http-error";
 export function authConfigured() {
   return Boolean(
     (process.env.ADMIN_SESSION_SECRET?.length ?? 0) >= 32 &&

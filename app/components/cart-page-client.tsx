@@ -21,7 +21,11 @@ const currency = new Intl.NumberFormat("tr-TR", {
   currency: "TRY",
 });
 
-export function CartPageClient() {
+export function CartPageClient({
+  paymentsEnabled = false,
+}: {
+  paymentsEnabled?: boolean;
+}) {
   const { clearCart, items, removeItem, totalCount, updateQuantity } =
     useCart();
   const requestKey = JSON.stringify(
@@ -137,8 +141,19 @@ export function CartPageClient() {
               <article className="cart-item" key={cartKey(item)}>
                 <div className="cart-item-image">
                   {item.configuration?.source === "builder" ? (
-                    <ClockArtwork code={item.configuration.clock} style={item.configuration.numeral} source={item.configuration.numeral === "original" ? item.image : undefined} sizes="96px" />
-                  ) : <Image src={item.image} alt="" fill sizes="96px" />}
+                    <ClockArtwork
+                      code={item.configuration.clock}
+                      style={item.configuration.numeral}
+                      source={
+                        item.configuration.numeral === "original"
+                          ? item.image
+                          : undefined
+                      }
+                      sizes="96px"
+                    />
+                  ) : (
+                    <Image src={item.image} alt="" fill sizes="96px" />
+                  )}
                 </div>
 
                 <div className="cart-item-copy">
@@ -235,18 +250,28 @@ export function CartPageClient() {
               {subtotal !== null ? currency.format(subtotal) : "Hesaplanamıyor"}
             </strong>
           </div>
-          <p id="checkout-unavailable">
-            Online ödeme henüz kullanıma açılmadı.
-          </p>
-          <button
-            className="product-detail-primary"
-            type="button"
-            disabled
-            aria-describedby="checkout-unavailable"
-          >
-            Ödemeye geç
-            <CreditCard aria-hidden="true" size={18} />
-          </button>
+          {paymentsEnabled && allPriced ? (
+            <Link className="product-detail-primary" href="/odeme">
+              Ödemeye geç <CreditCard aria-hidden="true" size={18} />
+            </Link>
+          ) : (
+            <>
+              <p id="checkout-unavailable">
+                {paymentsEnabled
+                  ? "Devam etmek için ürün ve fiyat bilgilerini kontrol edin."
+                  : "Online ödeme henüz kullanıma açılmadı."}
+              </p>
+              <button
+                className="product-detail-primary"
+                type="button"
+                disabled
+                aria-describedby="checkout-unavailable"
+              >
+                Ödemeye geç
+                <CreditCard aria-hidden="true" size={18} />
+              </button>
+            </>
+          )}
           <Link className="product-detail-secondary" href="/urunler">
             Alışverişe devam et
           </Link>

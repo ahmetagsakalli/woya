@@ -13,7 +13,15 @@
     "test:pricing": "tsx --test tests/pricing.test.ts",
     "test:artwork": "tsx --test tests/clock-artwork.test.ts",
     "test:crop": "tsx --test tests/crop.test.ts",
-    "test:admin:http": "tsx tests/admin-http.ts"
+    "test:admin:http": "tsx tests/admin-http.ts",
+    "test:payments": "tsx --test tests/payments.test.ts",
+    "test:legal": "tsx --test tests/legal.test.ts",
+    "test:payments:http": "tsx tests/payments-http.ts",
+    "test:customer": "tsx --test tests/customer.test.ts",
+    "test:customer:email": "tsx --conditions=react-server --test tests/customer-email.test.ts",
+    "test:customer:http": "tsx tests/customer-http.ts",
+    "test:customer:browser": "WOYA_BROWSER_TESTS=1 tsx tests/customer-http.ts",
+    "customer:migrate": "tsx scripts/customer-migrate.ts"
   },
   "dependencies": {
     "@vercel/blob": "^2.8.0",
@@ -31,11 +39,14 @@
   "devDependencies": {
     "@electric-sql/pglite": "^0.5.8",
     "@electric-sql/pglite-socket": "^0.2.11",
+    "@playwright/test": "^1.63.0",
     "@types/node": "26.4.0",
     "@types/react": "latest",
     "@types/react-dom": "19.2.5",
+    "embedded-postgres": "18.4.0-beta.17",
     "eslint": "10.9.1",
     "eslint-config-next": "16.3.3",
+    "prettier": "^3.9.6",
     "tsx": "^4.23.13",
     "typescript": "latest"
   }
