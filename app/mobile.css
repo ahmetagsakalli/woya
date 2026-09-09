@@ -202,7 +202,6 @@
   .product-detail-thumb span { font-size: 12px; white-space: normal; }
   .product-detail-summary { padding: 0; border: 0; box-shadow: none; min-width: 0; }
   .product-detail-title-block { padding-bottom: 20px; }
-  .product-detail-title-block h1,
   .product-detail-summary h2 { font-size: 28px; line-height: 1.2; overflow-wrap: anywhere; }
   .product-detail-specs { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .product-detail-specs dd { overflow-wrap: anywhere; }

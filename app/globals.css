@@ -5891,11 +5891,12 @@ img {
 }
 
 .product-detail-title-block h1 {
-  font-size: clamp(2.4rem, 5vw, 4.8rem);
-  font-weight: 560;
-  line-height: 1.02;
+  font-size: clamp(1.4rem, 1.1rem + 1.2vw, 2rem);
+  font-weight: 400;
+  line-height: 1.25;
   margin: 0;
   max-width: 960px;
+  overflow-wrap: anywhere;
 }
 
 .product-detail-layout {
@@ -6170,6 +6171,10 @@ img {
 .related-products-section {
   display: grid;
   gap: 24px;
+}
+
+.related-products-section .product-gallery-grid {
+  min-width: 0;
 }
 
 .brand-page-section {
