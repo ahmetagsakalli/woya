@@ -24,7 +24,9 @@
     "test:customer:browser": "WOYA_BROWSER_TESTS=1 tsx tests/customer-http.ts",
     "customer:migrate": "tsx scripts/customer-migrate.ts",
     "product:test:add": "tsx scripts/test-product.ts",
-    "product:test:remove": "tsx scripts/test-product.ts --remove"
+    "product:test:remove": "tsx scripts/test-product.ts --remove",
+    "catalog:prices": "tsx scripts/catalog-prices.ts",
+    "catalog:prices:overwrite": "tsx scripts/catalog-prices.ts --overwrite"
   },
   "dependencies": {
     "@vercel/blob": "^2.8.0",

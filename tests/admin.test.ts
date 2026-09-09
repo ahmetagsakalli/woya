@@ -2,6 +2,7 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 import { access, readFile } from "node:fs/promises";
 import { PGlite } from "@electric-sql/pglite";
+import { defaultCatalogProductPrice } from "../app/data/products";
 import { passwordChangeSchema } from "../lib/admin/security-schema";
 import {
   categorySchema,
@@ -22,10 +23,17 @@ test("Seeded gallery images exist on disk", async () => {
     for (const image of product.images) await access(`public${image.url}`);
 });
 
-test("Existing catalogue and site content validate without invented prices or stocks", () => {
+test("Existing catalogue and site content validate with editable starting prices", () => {
   initialProducts().forEach((p) => {
     assert.equal(productSchema.safeParse(p).success, true);
-    assert.equal(p.price, p.slug === "woya-5-tl-test-urunu" ? 5 : null);
+    assert.equal(
+      p.price,
+      p.slug === "woya-5-tl-test-urunu"
+        ? 5
+        : p.type === "rehber"
+          ? null
+          : defaultCatalogProductPrice,
+    );
     assert.equal(p.stock, null);
   });
   initialCategories.forEach((c) =>

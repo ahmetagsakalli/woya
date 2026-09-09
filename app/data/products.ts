@@ -30,6 +30,8 @@ export type FeaturedProduct = {
   href: string;
 };
 
+export const defaultCatalogProductPrice = 1500;
+
 type RawProduct = {
   code: string;
   title: string;
@@ -490,6 +492,12 @@ function enrichProduct(product: RawProduct, index: number): WoyaProduct {
   const collection = inferCollection(product.code, product.title);
   const room = inferRoom(product);
   const image = `/images/products/woya/woya-${product.imageCode ?? product.code}.webp`;
+  const price =
+    product.price === undefined
+      ? collection.collection === "rehber"
+        ? null
+        : defaultCatalogProductPrice
+      : product.price;
 
   return {
     ...product,
@@ -501,9 +509,9 @@ function enrichProduct(product: RawProduct, index: number): WoyaProduct {
     slug: product.slug ?? slugify(product.title),
     alt: `${product.title} ürün görseli`,
     lead: buildLead(product, motif, tone),
-    price: product.price,
-    salePrice: product.salePrice,
-    stock: product.stock,
+    price,
+    salePrice: product.salePrice ?? null,
+    stock: product.stock ?? null,
     productType: product.productType,
     highlights: [
       product.code === "00"

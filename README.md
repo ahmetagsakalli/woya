@@ -28,6 +28,11 @@ icin [yonetim ve kurulum rehberine](ADMIN.md) bakin.
 VPS'e kaynak klasorunu komple kopyalamayin; hafif standalone yayin paketi icin
 [VPS yayin rehberini](VPS_DEPLOYMENT.md) kullanin.
 
+Canli veritabaninda fiyati bos kalan satilabilir urunleri 1.500 TL baslangic
+fiyatiyla doldurmak icin `pnpm catalog:prices` calistirin. Mevcut fiyatlari
+bilerek sifirdan ayni degere cekmek icin `pnpm catalog:prices:overwrite`
+kullanilir.
+
 ## Kontroller
 
 ```sh
