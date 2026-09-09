@@ -3,6 +3,18 @@ const nextConfig = {
   agentRules: false,
   compress: true,
   devIndicators: false,
+  output: "standalone",
+  outputFileTracingExcludes: {
+    "/*": [
+      "./.env*",
+      "./.git/**/*",
+      "./.next/cache/**/*",
+      "./dist/**/*",
+      "./outputs/**/*",
+      "./tests/**/*",
+      "./work/**/*",
+    ],
+  },
   poweredByHeader: false,
   async headers() {
     const headers = [

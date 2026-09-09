@@ -1,5 +1,10 @@
+.git
 .next
 node_modules
+dist
+work
+outputs
+.vercel
 .env*
 !.env.example
 pnpm-debug.log*
@@ -7,10 +12,6 @@ npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 .DS_Store
-.vercel
-/outputs/
-/work/
-/dist/
 *.tsbuildinfo
 *.pem
 *.key

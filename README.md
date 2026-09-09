@@ -25,6 +25,8 @@ dislanan `.env.local` dosyasinda veya yayin ortaminin secret ayarlarinda tutun.
 
 Veritabani ilk kurulumu, parola olusturma, Vercel Blob ve VPS depolama ayarlari
 icin [yonetim ve kurulum rehberine](ADMIN.md) bakin.
+VPS'e kaynak klasorunu komple kopyalamayin; hafif standalone yayin paketi icin
+[VPS yayin rehberini](VPS_DEPLOYMENT.md) kullanin.
 
 ## Kontroller
 
@@ -49,6 +51,9 @@ Vercel uzerinde PostgreSQL ve Vercel Blob kullanilir. VPS icin kalici yerel
 gorsel depolama da desteklenir. Repo kaynak kodunu ve paketlenmis katalog
 gorsellerini icerir; canli veritabani kayitlari ve sonradan yuklenen Blob
 gorselleri ayri kaynaklardir ve bu repo bir veritabani yedegi degildir.
+VPS yayininda `pnpm vps:package` ile olusan `dist/woya-vps-standalone.tar.gz`
+paketini gonderin; `.git`, tam gelistirme `node_modules`, `.next/cache`,
+`work` ve `.env*` sunucuya kopyalanmaz.
 
 PayTR iFrame odeme entegrasyonu mevcuttur; varsayilan olarak kapalidir.
 Gizli degerler, migration, callback ve kabul testi icin [PayTR rehberi](PAYTR.md).

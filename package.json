@@ -6,6 +6,7 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
+    "vps:package": "next build && node scripts/package-vps.mjs",
     "typecheck": "tsc --noEmit",
     "admin:setup": "tsx scripts/admin-setup.ts",
     "admin:password": "node scripts/admin-password.mjs",

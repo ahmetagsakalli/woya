@@ -34,22 +34,22 @@ Mevcut production kaynakları: `woya-admin-db` (Neon Free, Frankfurt) ve `woya-p
 
 ## Ekranlar
 
-| URL                      | İşlev                                                            |
-| ------------------------ | ---------------------------------------------------------------- |
-| `/admin/giris`           | Güvenli yönetici girişi                                          |
-| `/admin`                 | Ürün/sipariş sayıları ve hızlı işlemler                             |
-| `/admin/urunler`         | Arama, kategori/durum filtresi, sayfalama                        |
-| `/admin/urunler/yeni`    | Yeni ürün                                                        |
-| `/admin/urunler/[id]`    | Ürün, ölçü, yayın durumu ve görseller                     |
-| `/admin/kategoriler`     | Kategori ekleme/düzenleme/silme, aktiflik, sıra ve sayfa üyeliği |
-| `/admin/icerik`          | Hero, favoriler, iletişim, footer ve SSS                         |
-| `/admin/siparisler`      | Sipariş geçmişi, sunucuda arama/filtreleme ve sayfalama    |
-| `/admin/siparisler/[id]` | Müşteri, ürünler, iç not ve durum geçmişi                        |
-| `/admin/medya`           | Mevcut görseller ve kalıcı yükleme                               |
-| `/admin/guvenlik`        | Mevcut şifreyle şifre değiştirme, oturum özeti ve diğer oturumları kapatma |
-| `/admin/fiyatlandirma`   | Tablo/saat m² bedelleri, hazır ölçüler ve özel ölçü sınırları |
+| URL                      | İşlev                                                                         |
+| ------------------------ | ----------------------------------------------------------------------------- |
+| `/admin/giris`           | Güvenli yönetici girişi                                                       |
+| `/admin`                 | Ürün/sipariş sayıları ve hızlı işlemler                                       |
+| `/admin/urunler`         | Arama, kategori/durum filtresi, sayfalama                                     |
+| `/admin/urunler/yeni`    | Yeni ürün                                                                     |
+| `/admin/urunler/[id]`    | Ürün, ölçü, yayın durumu ve görseller                                         |
+| `/admin/kategoriler`     | Kategori ekleme/düzenleme/silme, aktiflik, sıra ve sayfa üyeliği              |
+| `/admin/icerik`          | Hero, favoriler, iletişim, footer ve SSS                                      |
+| `/admin/siparisler`      | Sipariş geçmişi, sunucuda arama/filtreleme ve sayfalama                       |
+| `/admin/siparisler/[id]` | Müşteri, ürünler, iç not ve durum geçmişi                                     |
+| `/admin/medya`           | Mevcut görseller ve kalıcı yükleme                                            |
+| `/admin/guvenlik`        | Mevcut şifreyle şifre değiştirme, oturum özeti ve diğer oturumları kapatma    |
+| `/admin/fiyatlandirma`   | Tablo/saat m² bedelleri, hazır ölçüler ve özel ölçü sınırları                 |
 | `/sepet`                 | Ürün/adet yönetimi, güncel fiyatlar ve yapılandırıldığında PayTR ödeme geçişi |
-| `/odeme`                 | Teslimat bilgileri ve sunucuda doğrulanan ödeme özeti                     |
+| `/odeme`                 | Teslimat bilgileri ve sunucuda doğrulanan ödeme özeti                         |
 
 ## İş kuralları
 
@@ -102,7 +102,7 @@ Testler: `pnpm test:crop`, `pnpm test:admin`, `pnpm test:pricing`, `pnpm test:ar
 - Şifre `/admin/guvenlik` ekranından mevcut şifre doğrulanarak değiştirilir. Yeni şifre en az 12 karakter ve bcrypt sınırı nedeniyle en fazla 72 UTF-8 bayt olmalıdır. Yeni şifre ve tekrarı eşleşmelidir; mevcut şifre yeniden kullanılamaz. Bcrypt hash, sürüm artışı, tüm oturumların silinmesi ve audit kaydı tek transaction'dadır. Başarılı değişimde mevcut oturum da kapanır; yeni şifreyle giriş gerekir. Yeni şifre yerel dosyaya veya loglara yazılmaz; başlangıç bilgisi dosyası artık güncel olmayabilir.
 - Diğer oturumları kapatma işlemi mevcut oturumu korur. Oturumlar credential sürümüne bağlıdır; veritabanı trigger'ı da şifre değiştikten sonra eski yayınların ilk şifreyle yeni oturum oluşturmasını engeller. API işlemleri yetki, Origin ve rate-limit kontrolü yapar. Şifre doğrulamasıyla eşzamanlı şifre değişimi arasındaki yarış veritabanı kilitleriyle korunur.
 - Şifre unutulursa e-posta ile sıfırlama yoktur: yetkili sunucu/veritabanı erişimiyle yeni bcrypt hash atanmalı, credential sürümü artırılmalı ve tüm oturumlar aynı transaction'da silinmelidir. Yalnızca Vercel'deki eski `ADMIN_PASSWORD_HASH` değerini değiştirmek artık şifreyi sıfırlamaz.
-- VPS: Node.js 22+ (test ortamı 24), PostgreSQL 17+, HTTPS reverse proxy ve process manager/systemd kullanın. `pnpm install --frozen-lockfile`, `pnpm admin:setup`, `pnpm build`, ardından `pnpm start`. Dış dünyaya sadece 80/443 açın; Node/PostgreSQL portlarını iç ağda tutun. HTTPS üzerinde Secure cookie/HSTS politikasını reverse proxy'de etkinleştirin.
+- VPS: Node.js 22+ (test ortamı 24), PostgreSQL 17+, HTTPS reverse proxy ve process manager/systemd kullanın. Sunucuya kaynak klasörünün tamamını kopyalamayın; [VPS yayın rehberindeki](VPS_DEPLOYMENT.md) `pnpm vps:package` çıktısını yayınlayın. Dış dünyaya sadece 80/443 açın; Node/PostgreSQL portlarını iç ağda tutun. HTTPS üzerinde Secure cookie/HSTS politikasını reverse proxy'de etkinleştirin.
 - Günlük `pg_dump` yedeği ve `UPLOAD_DIR` yedeği alın. Yedekler VPS dışında saklanmalı ve geri yükleme düzenli denenmelidir. `.env.local` dosyasını da şifreli ve erişimi sınırlı saklayın.
 
 ## Trendyol
