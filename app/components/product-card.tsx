@@ -1,7 +1,25 @@
+"use client";
+
 import Image from "next/image";
 import Link from "next/link";
 import { ArrowUpRight } from "lucide-react";
+import { useEffect, useId, useRef, useState } from "react";
 import type { WoyaProduct } from "../data/products";
+
+const desktopBatchSize = 8;
+const tabletBatchSize = 6;
+const mobileBatchSize = 4;
+
+function currentBatchSize() {
+  if (typeof window === "undefined") return desktopBatchSize;
+  if (window.matchMedia("(max-width: 680px)").matches) {
+    return mobileBatchSize;
+  }
+  if (window.matchMedia("(max-width: 1100px)").matches) {
+    return tabletBatchSize;
+  }
+  return desktopBatchSize;
+}
 
 export function ProductCard({ product }: { product: WoyaProduct }) {
   return (
@@ -57,12 +75,92 @@ export function ProductCard({ product }: { product: WoyaProduct }) {
   );
 }
 
-export function ProductGrid({ products }: { products: WoyaProduct[] }) {
+export function ProductGrid({
+  products,
+  expandable = false,
+}: {
+  products: WoyaProduct[];
+  expandable?: boolean;
+}) {
+  const gridId = useId();
+  const userExpandedRef = useRef(false);
+  const [enhanced, setEnhanced] = useState(false);
+  const [batchSize, setBatchSize] = useState(desktopBatchSize);
+  const [visibleCount, setVisibleCount] = useState(desktopBatchSize);
+
+  useEffect(() => {
+    if (!expandable) return;
+
+    userExpandedRef.current = false;
+
+    const updateVisibleCount = () => {
+      const nextBatchSize = currentBatchSize();
+      setBatchSize(nextBatchSize);
+      setVisibleCount((current) => {
+        if (!userExpandedRef.current) {
+          return Math.min(nextBatchSize, products.length);
+        }
+        return Math.min(Math.max(current, nextBatchSize), products.length);
+      });
+      setEnhanced(true);
+    };
+
+    updateVisibleCount();
+    window.addEventListener("resize", updateVisibleCount);
+    return () => window.removeEventListener("resize", updateVisibleCount);
+  }, [expandable, products.length]);
+
+  const shownCount = expandable
+    ? Math.min(visibleCount, products.length)
+    : products.length;
+  const hasMoreProducts = expandable && shownCount < products.length;
+
   return (
-    <div className="product-gallery-grid">
-      {products.map((product) => (
-        <ProductCard product={product} key={product.slug} />
-      ))}
+    <div
+      className="product-gallery-shell"
+      data-enhanced={enhanced ? "true" : "false"}
+      data-expandable={expandable ? "true" : undefined}
+    >
+      <div className="product-gallery-grid" id={gridId}>
+        {products.map((product, index) => (
+          <div
+            className="product-grid-item"
+            data-desktop-initial-hidden={
+              expandable && index >= desktopBatchSize ? "true" : undefined
+            }
+            data-mobile-initial-hidden={
+              expandable && index >= mobileBatchSize ? "true" : undefined
+            }
+            data-tablet-initial-hidden={
+              expandable && index >= tabletBatchSize ? "true" : undefined
+            }
+            data-visible={
+              !expandable || index < visibleCount ? "true" : "false"
+            }
+            key={product.slug}
+          >
+            <ProductCard product={product} />
+          </div>
+        ))}
+      </div>
+      {hasMoreProducts && (
+        <div className="product-load-more-row">
+          <button
+            aria-controls={gridId}
+            aria-label={`${Math.min(batchSize, products.length - shownCount)} ürün daha göster`}
+            className="product-load-more"
+            onClick={() => {
+              userExpandedRef.current = true;
+              setVisibleCount((current) =>
+                Math.min(current + batchSize, products.length),
+              );
+            }}
+            type="button"
+          >
+            Daha fazlasını gör
+          </button>
+        </div>
+      )}
     </div>
   );
 }

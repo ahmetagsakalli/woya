@@ -21,7 +21,10 @@ export function CatalogPageContent({
 }) {
   const collections = new Map<string, number>();
   products.forEach((product) => {
-    collections.set(product.collectionLabel, (collections.get(product.collectionLabel) ?? 0) + 1);
+    collections.set(
+      product.collectionLabel,
+      (collections.get(product.collectionLabel) ?? 0) + 1,
+    );
   });
 
   return (
@@ -29,7 +32,11 @@ export function CatalogPageContent({
       <aside className="catalog-filter-rail">
         <nav aria-label="Katalog sayfaları">
           {catalogLinks.map((link) => (
-            <Link data-active={link.label === active ? "true" : undefined} href={link.href} key={link.href}>
+            <Link
+              data-active={link.label === active ? "true" : undefined}
+              href={link.href}
+              key={link.href}
+            >
               {link.label}
             </Link>
           ))}
@@ -49,11 +56,13 @@ export function CatalogPageContent({
           </div>
           <div className="catalog-tags" aria-label="Koleksiyon dağılımı">
             {[...collections.entries()].map(([label, count]) => (
-              <span key={label}>{label} · {count}</span>
+              <span key={label}>
+                {label} · {count}
+              </span>
             ))}
           </div>
         </div>
-        <ProductGrid products={products} />
+        <ProductGrid expandable products={products} />
       </div>
     </section>
   );

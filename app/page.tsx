@@ -14,7 +14,10 @@ import {
   mapsUrl,
   phoneHref,
 } from "./components/site-chrome";
-import { getContent, getStorefrontPricing as getPricing } from "@/lib/admin/repository";
+import {
+  getContent,
+  getStorefrontPricing as getPricing,
+} from "@/lib/admin/repository";
 import { storefrontProducts } from "@/lib/storefront";
 export const dynamic = "force-dynamic";
 
@@ -55,7 +58,10 @@ const jsonLd = {
 };
 
 export default async function Home() {
-  const [content, woyaProducts] = await Promise.all([getContent(), storefrontProducts()]);
+  const [content, woyaProducts] = await Promise.all([
+    getContent(),
+    storefrontProducts(),
+  ]);
   const featuredProducts = content.favorites;
   const heroSlides: HeroSlide[] = content.heroImages.map((im, i) => ({
     src: im.url,
@@ -124,39 +130,40 @@ export default async function Home() {
             </Link>
           </div>
           <div className="showcase-products">
-          {featuredProducts.map((product) => (
-            <article className="showcase-card" key={product.title}>
-              <Link className="showcase-image" href={product.href}>
-                <Image
-                  src={product.image}
-                  alt={product.alt}
-                  fill
-                  loading="eager"
-                  sizes="(max-width: 680px) 86vw, (max-width: 900px) 50vw, 25vw"
-                />
-                <div className="showcase-overlay">
-                  <div className="showcase-copy">
-                    <h3>{product.title}</h3>
-                    <p>{product.text}</p>
+            {featuredProducts.map((product) => (
+              <article className="showcase-card" key={product.title}>
+                <Link className="showcase-image" href={product.href}>
+                  <Image
+                    src={product.image}
+                    alt={product.alt}
+                    fill
+                    loading="eager"
+                    sizes="(max-width: 680px) 86vw, (max-width: 900px) 50vw, 25vw"
+                  />
+                  <div className="showcase-overlay">
+                    <div className="showcase-copy">
+                      <h3>{product.title}</h3>
+                      <p>{product.text}</p>
+                    </div>
                   </div>
-                </div>
-              </Link>
-            </article>
-          ))}
+                </Link>
+              </article>
+            ))}
           </div>
         </div>
       </section>
 
       <CustomBuilder
         settings={await getPricing()}
-        availableModels={woyaProducts
-          .map(({ code, title, productType, clockShape, builderParts }) => ({
+        availableModels={woyaProducts.map(
+          ({ code, title, productType, clockShape, builderParts }) => ({
             code,
             title,
             productType,
             clockShape,
             builderParts,
-          }))}
+          }),
+        )}
       />
 
       <section
@@ -168,7 +175,7 @@ export default async function Home() {
           <h2 id="other-products-title">Tüm Ürünler</h2>
         </div>
 
-        <ProductGrid products={woyaProducts} />
+        <ProductGrid expandable products={woyaProducts} />
       </section>
 
       <FaqSection items={content.faqs} />
