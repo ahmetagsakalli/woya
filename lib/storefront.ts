@@ -2,13 +2,37 @@ import "server-only";
 import { cache } from "react";
 import { getStorefrontCatalog, readCatalog } from "./admin/repository";
 import { clockShapeFor } from "./pricing";
-import { woyaProducts, type WoyaProduct } from "../app/data/products";
+import {
+  defaultCatalogProductPrice,
+  woyaProducts,
+  type WoyaProduct,
+} from "../app/data/products";
 import type { BuilderParts } from "./admin/schema";
 
 function publicBuilderParts(parts?: BuilderParts) {
   if (!parts) return undefined;
   const { enabled, left, center, right } = parts;
   return { enabled, left, center, right };
+}
+
+function positivePrice(value?: number | null) {
+  return typeof value === "number" && Number.isFinite(value) && value > 0
+    ? value
+    : null;
+}
+
+function storefrontPrice(product: {
+  price?: number | null;
+  salePrice?: number | null;
+  type?: "set" | "saat" | "tablo" | "rehber";
+}) {
+  if (product.type === "rehber") return { price: null, salePrice: null };
+  const price = positivePrice(product.price) ?? defaultCatalogProductPrice;
+  const salePrice = positivePrice(product.salePrice);
+  return {
+    price,
+    salePrice: salePrice !== null && salePrice < price ? salePrice : null,
+  };
 }
 
 export const storefrontProducts = cache(async function storefrontProducts(
@@ -36,6 +60,7 @@ export const storefrontProducts = cache(async function storefrontProducts(
     .map((p): WoyaProduct => {
       const original = woyaProducts.find((o) => o.code === p.code);
       const category = categories.find((c) => c.id === p.categoryId)!;
+      const price = storefrontPrice(p);
       return {
         code: p.code,
         title: p.title,
@@ -55,8 +80,8 @@ export const storefrontProducts = cache(async function storefrontProducts(
           ...(original?.details.filter((d) => d.label !== "Ürün tipi") ?? []),
         ],
         images: p.images,
-        price: p.price,
-        salePrice: p.salePrice,
+        price: price.price,
+        salePrice: price.salePrice,
         productType: p.type,
         clockShape: clockShapeFor(p),
         builderParts: publicBuilderParts(p.builderParts),
@@ -69,11 +94,25 @@ export async function storefrontProduct(slug: string) {
 
 export async function storefrontQuoteData() {
   const { products, categories, pricing } = await readCatalog();
-  const activeCategories = new Set(categories.filter((c) => c.active).map((c) => c.id));
+  const activeCategories = new Set(
+    categories.filter((c) => c.active).map((c) => c.id),
+  );
   return {
-    products: products.filter((p) => p.active && activeCategories.has(p.categoryId)).map((p) => ({
-      slug: p.slug, code: p.code, title: p.title, productType: p.type, clockShape: clockShapeFor(p), price: p.price, salePrice: p.salePrice, builderParts: publicBuilderParts(p.builderParts),
-    })),
+    products: products
+      .filter((p) => p.active && activeCategories.has(p.categoryId))
+      .map((p) => {
+        const price = storefrontPrice(p);
+        return {
+          slug: p.slug,
+          code: p.code,
+          title: p.title,
+          productType: p.type,
+          clockShape: clockShapeFor(p),
+          price: price.price,
+          salePrice: price.salePrice,
+          builderParts: publicBuilderParts(p.builderParts),
+        };
+      }),
     settings: pricing,
   };
 }

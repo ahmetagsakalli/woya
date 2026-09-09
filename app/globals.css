@@ -2492,6 +2492,19 @@ img {
   margin: 12px 0 0;
 }
 
+.product-card-copy .product-card-price {
+  color: var(--ink);
+  font-size: 1.02rem;
+  letter-spacing: 0.01em;
+  line-height: 1.2;
+  margin-top: 16px;
+}
+
+.product-card-price del {
+  color: var(--muted);
+  margin-right: 8px;
+}
+
 .product-card-copy strong,
 .product-card-copy del,
 .product-card-copy a {
@@ -2663,10 +2676,9 @@ img {
 .footer-main {
   display: grid;
   gap: clamp(28px, 3vw, 52px);
-  grid-template-columns: minmax(250px, 1.1fr) repeat(
-      3,
-      minmax(112px, 0.54fr)
-    ) minmax(280px, 0.95fr);
+  grid-template-columns:
+    minmax(250px, 1.1fr) repeat(3, minmax(112px, 0.54fr))
+    minmax(280px, 0.95fr);
   margin: 0 auto;
   max-width: 1280px;
   width: 100%;

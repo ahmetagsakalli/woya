@@ -4,7 +4,6 @@ import { notFound } from "next/navigation";
 import {
   ArrowLeft,
   ArrowUpRight,
-  MessageCircle,
   PackageCheck,
   ShieldCheck,
   Truck,
@@ -13,7 +12,7 @@ import { ProductGrid } from "../../components/product-card";
 import { ProductDetailGallery } from "../../components/product-detail-gallery";
 import { getProductGallery } from "../../data/products";
 import { storefrontProduct, storefrontProducts } from "@/lib/storefront";
-import { getContent, getStorefrontPricing as getPricing } from "@/lib/admin/repository";
+import { getStorefrontPricing as getPricing } from "@/lib/admin/repository";
 import { MeasuredProduct } from "../../components/measured-product";
 import {
   SiteFooter,
@@ -63,11 +62,6 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
   const relatedProducts = (await storefrontProducts())
     .filter((p) => p.slug !== slug && p.collection === product.collection)
     .slice(0, 4);
-  const contact = await getContent();
-  const whatsappUrl = `https://wa.me/${contact.phone.replace(/\D/g, "")}`;
-  const whatsappMessage = encodeURIComponent(
-    `${product.title} için bilgi almak istiyorum.`,
-  );
   const productJsonLd = {
     "@context": "https://schema.org",
     "@type": "Product",
@@ -125,18 +119,6 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
 
             <div id="urun-olculeri">
               <MeasuredProduct product={product} settings={pricing} />
-            </div>
-
-            <div className="product-detail-actions">
-              <a
-                className="product-detail-secondary"
-                href={`${whatsappUrl}?text=${whatsappMessage}`}
-                target="_blank"
-                rel="noreferrer"
-              >
-                WhatsApp ile Sor
-                <MessageCircle aria-hidden="true" size={18} />
-              </a>
             </div>
 
             <dl className="product-detail-specs">

@@ -10,6 +10,13 @@ const desktopBatchSize = 8;
 const tabletBatchSize = 6;
 const mobileBatchSize = 4;
 
+function formatPrice(value: number) {
+  return `${value.toLocaleString("tr-TR", {
+    maximumFractionDigits: value % 1 === 0 ? 0 : 2,
+    minimumFractionDigits: value % 1 === 0 ? 0 : 2,
+  })} TL`;
+}
+
 function currentBatchSize() {
   if (typeof window === "undefined") return desktopBatchSize;
   if (window.matchMedia("(max-width: 680px)").matches) {
@@ -47,13 +54,11 @@ export function ProductCard({ product }: { product: WoyaProduct }) {
         </h3>
         <p>{product.text}</p>
         {product.price != null && (
-          <p>
+          <p className="product-card-price">
             {product.salePrice != null && (
-              <del>{product.price.toLocaleString("tr-TR")} ₺ </del>
+              <del>{formatPrice(product.price)}</del>
             )}{" "}
-            <strong>
-              {(product.salePrice ?? product.price).toLocaleString("tr-TR")} ₺
-            </strong>
+            <strong>{formatPrice(product.salePrice ?? product.price)}</strong>
           </p>
         )}
         <div className="product-card-actions">
