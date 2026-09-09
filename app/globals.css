@@ -2539,7 +2539,7 @@ img {
 }
 
 .site-footer {
-  background: var(--paper);
+  background: var(--white);
   color: var(--muted);
   display: grid;
   font-family: var(--font-primary);
