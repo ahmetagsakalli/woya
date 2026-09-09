@@ -38,7 +38,12 @@ if [[ ! -f "$release/.verified" ]]; then
 fi
 # Database schema changes require a reviewed migration before traffic is switched.
 if [[ -n "$previous" && -d "$previous/db" ]]; then
-  diff -qr "$previous/db" "$release/db"
+  if ! diff -qr "$previous/db" "$release/db"; then
+    # Only a reviewed, already applied schema is allowed across this gate.
+    actual=$(cd "$release" && find db -type f -print0 | sort -z | xargs -0 sha256sum)
+    expected=$(cat /etc/woya/approved-db.sha256)
+    [[ "$actual" == "$expected" ]]
+  fi
 fi
 test -r /etc/woya/runtime.json
 ln -sfn "$release" /var/www/woya-candidate

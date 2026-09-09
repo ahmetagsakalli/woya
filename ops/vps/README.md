@@ -15,13 +15,19 @@ Target: `woyatablo.com`, VPS `187.124.169.67`, Node.js 24, system PostgreSQL 16.
 
 ## Automatic updates
 
-`woya-deploy.timer` checks GitHub every minute, plus up to 10 seconds jitter. A new `main` commit triggers locked dependency installation, TypeScript checks, all four unit suites, production build, and the isolated admin HTTP suite. The candidate is started on loopback port 3181 and checked before the running service switches. A failed activation restores the previous release. A successful restart may cause a short interruption of a few seconds.
+`woya-deploy.timer` checks GitHub every minute, plus up to 10 seconds jitter. A new `main` commit triggers locked dependency installation, TypeScript checks, admin/pricing/artwork/crop unit suites, production build, and the isolated admin HTTP suite. Payment, legal, customer and email unit suites and payment/customer HTTP suites also run when present. The candidate is started on loopback port 3181 and checked before the running service switches. A failed activation restores the previous release. A successful restart may cause a short interruption of a few seconds.
 
 Builds run as the dedicated `woya` user with 1600 MB memory and one CPU quota, protecting other sites on this shared VPS. Build/test processes do not receive production credentials. Production receives its credentials only through systemd. Builds use `NEXT_PUBLIC_SITE_URL=https://woyatablo.com`.
 
+The wrapper limits the Node heap to 768 MB and TypeScript 7's native Go runtime to a 384 MiB memory target with one worker (`GOMEMLIMIT`, `GOMAXPROCS`). This keeps the compiler and the parent Next process inside the shared build cgroup during Next's additional type check.
+
 Push directly to `main`, or merge a feature branch/PR into `main`, to publish. Other branches do not deploy. Failed commits remain skipped until another commit arrives or `/var/lib/woya/failed-sha` is removed for an explicit retry. Failures are recorded in systemd; no email/Slack notification is configured.
 
-Changes under `db/` deliberately stop automatic activation. Review and back up the database, apply a compatible migration, and update the deployment procedure before releasing a schema change. Regular content and code updates do not need a manual merge beyond getting onto `main`.
+Changes under `db/` deliberately stop automatic activation. Review and back up the database, restore the backup to a disposable database, test the compatible migration there, and apply it to production before approving the exact schema manifest. After migration, generate `/etc/woya/approved-db.sha256` as root from the reviewed release with `(cd /var/www/woya-releases/REVIEWED_COMMIT && find db -type f -print0 | sort -z | xargs -0 sha256sum) > /etc/woya/approved-db.sha256`. Set its mode to 0600. The gate compares the entire manifest, including filenames, so a subsequent unreviewed schema change still stops deployment. No migration runs automatically. Regular content and code updates do not need a manual merge beyond getting onto `main`.
+
+The Linux embedded PostgreSQL postinstall script restores packaged symlinks for the isolated customer tests. It is explicitly approved in `pnpm-workspace.yaml`. The VPS build wrapper also handles the missing approval in older upstream commits, restricted to the reviewed `embedded-postgres` version `18.4.0-beta.17`; other native versions require review.
+
+PayTR and customer email credentials are separate runtime configuration. Deploying the code does not enable online payment or verification email: configure the documented PayTR and Resend settings before using those features.
 
 ```sh
 systemctl list-timers 'woya-*'
