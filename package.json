@@ -22,7 +22,9 @@
     "test:customer:email": "tsx --conditions=react-server --test tests/customer-email.test.ts",
     "test:customer:http": "tsx tests/customer-http.ts",
     "test:customer:browser": "WOYA_BROWSER_TESTS=1 tsx tests/customer-http.ts",
-    "customer:migrate": "tsx scripts/customer-migrate.ts"
+    "customer:migrate": "tsx scripts/customer-migrate.ts",
+    "product:test:add": "tsx scripts/test-product.ts",
+    "product:test:remove": "tsx scripts/test-product.ts --remove"
   },
   "dependencies": {
     "@vercel/blob": "^2.8.0",

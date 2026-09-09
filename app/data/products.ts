@@ -30,7 +30,20 @@ export type FeaturedProduct = {
   href: string;
 };
 
-const rawProducts = [
+type RawProduct = {
+  code: string;
+  title: string;
+  text: string;
+  slug?: string;
+  imageCode?: string;
+  images?: { url: string; alt: string; x: number; y: number }[];
+  price?: number | null;
+  salePrice?: number | null;
+  stock?: number | null;
+  productType?: "set" | "saat" | "tablo" | "rehber";
+};
+
+const rawProducts: RawProduct[] = [
   {
     code: "00",
     title: "Tablo ve Saat Seti Ölçü Rehberi",
@@ -301,7 +314,26 @@ const rawProducts = [
     title: "Gümüş Yuvarlak Saat Seti",
     text: "Yuvarlak gümüş saat merkezi ve çiçek panelleriyle ferah, ışıltılı bir set.",
   },
-] as const;
+  {
+    code: "9999",
+    title: "WOYA 5 TL Test Ürünü",
+    text: "Ödeme ve sepet akışını kontrollü şekilde denemek için kullanılan düşük tutarlı WOYA test ürünüdür.",
+    slug: "woya-5-tl-test-urunu",
+    imageCode: "01",
+    images: [
+      {
+        url: "/images/products/woya/woya-01.webp",
+        alt: "WOYA 5 TL test ürünü",
+        x: 50,
+        y: 50,
+      },
+    ],
+    price: 5,
+    salePrice: null,
+    stock: null,
+    productType: "set",
+  },
+];
 
 export const featuredProducts: FeaturedProduct[] = [
   {
@@ -452,15 +484,12 @@ function buildLead(
   return `${product.title}, ${tone.toLocaleLowerCase("tr-TR")} tonları ve ${motif.toLocaleLowerCase("tr-TR")} etkisiyle duvarda dengeli bir odak oluşturur.`;
 }
 
-function enrichProduct(
-  product: (typeof rawProducts)[number],
-  index: number,
-): WoyaProduct {
+function enrichProduct(product: RawProduct, index: number): WoyaProduct {
   const motif = inferMotif(product.title);
   const tone = inferTone(product.title);
   const collection = inferCollection(product.code, product.title);
   const room = inferRoom(product);
-  const image = `/images/products/woya/woya-${product.code}.webp`;
+  const image = `/images/products/woya/woya-${product.imageCode ?? product.code}.webp`;
 
   return {
     ...product,
@@ -469,9 +498,13 @@ function enrichProduct(
     tone,
     room,
     image,
-    slug: slugify(product.title),
+    slug: product.slug ?? slugify(product.title),
     alt: `${product.title} ürün görseli`,
     lead: buildLead(product, motif, tone),
+    price: product.price,
+    salePrice: product.salePrice,
+    stock: product.stock,
+    productType: product.productType,
     highlights: [
       product.code === "00"
         ? "Ölçü ve yerleşim danışmanlığı"

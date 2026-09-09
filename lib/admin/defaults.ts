@@ -61,15 +61,17 @@ export const initialProducts = (): ProductRecord[] =>
     slug: p.slug,
     categoryId: p.collection,
     description: p.text,
-    price: null,
-    salePrice: null,
-    stock: null,
+    price: p.price ?? null,
+    salePrice: p.salePrice ?? null,
+    stock: p.stock ?? null,
     type:
-      p.collection === "rehber"
+      p.productType ??
+      (p.collection === "rehber"
         ? "rehber"
         : p.collection === "dekoratif-saatler"
           ? "saat"
-          : "set",
+          : "set"),
+    clockShape: p.clockShape,
     active: true,
     featured: false,
     images: getProductGallery(p).map((im) => ({

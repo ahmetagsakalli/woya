@@ -25,7 +25,7 @@ test("Seeded gallery images exist on disk", async () => {
 test("Existing catalogue and site content validate without invented prices or stocks", () => {
   initialProducts().forEach((p) => {
     assert.equal(productSchema.safeParse(p).success, true);
-    assert.equal(p.price, null);
+    assert.equal(p.price, p.slug === "woya-5-tl-test-urunu" ? 5 : null);
     assert.equal(p.stock, null);
   });
   initialCategories.forEach((c) =>
